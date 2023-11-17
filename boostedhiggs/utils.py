@@ -5,6 +5,7 @@ import numpy as np
 from coffea.analysis_tools import PackedSelection
 from coffea.nanoevents.methods.base import NanoEventsArray
 from coffea.nanoevents.methods.nanoaod import FatJetArray, GenParticleArray
+from coffea.nanoevents.methods.candidate import PtEtaPhiMCandidateArray
 
 d_PDGID = 1
 c_PDGID = 4
@@ -68,7 +69,7 @@ def to_label(array: ak.Array) -> ak.Array:
     return ak.values_astype(array, np.int32)
 
 
-def match_H(genparts: GenParticleArray, fatjet: FatJetArray, dau_pdgid=W_PDGID):
+def match_H(genparts: GenParticleArray, fatjet: FatJetArray, candidatelep_p4: PtEtaPhiMCandidateArray, dau_pdgid=W_PDGID):
     """Gen matching for Higgs samples"""
     higgs = genparts[get_pid_mask(genparts, HIGGS_PDGID, byall=False) * genparts.hasFlags(GEN_FLAGS)]
 
@@ -139,6 +140,12 @@ def match_H(genparts: GenParticleArray, fatjet: FatJetArray, dau_pdgid=W_PDGID):
 
         gen_lepton = ak.firsts(lep_daughters)
 
+            
+        # print('===================================')
+        # print(len(is_hww))
+        # print(len(matched_higgs_mask))
+        # print('===================================')
+        
         genHVVVars = {
             "fj_nquarks": num_m_quarks,
             "fj_ncquarks": num_m_cquarks,
@@ -154,6 +161,7 @@ def match_H(genparts: GenParticleArray, fatjet: FatJetArray, dau_pdgid=W_PDGID):
             "gen_Vlep_pt": gen_lepton.pt,
             # "genlep_dR_lep": lepton.delta_r(gen_lepton)
             "fj_genRes_mass": matched_higgs.mass,
+            "H_dR_lep": candidatelep_p4.delta_r(higgs[:, 0]),
         }
 
         genVars = {**genVars, **genVVars, **genHVVVars}

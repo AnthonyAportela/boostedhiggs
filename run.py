@@ -97,6 +97,19 @@ def main(args):
             region=args.region,
         )
 
+    elif args.processor == "hww2":
+        from boostedhiggs.hwwprocessor2 import HwwProcessor2
+
+        p = HwwProcessor2(
+            year=year,
+            yearmod=yearmod,
+            channels=channels,
+            inference=args.inference,
+            systematics=args.systematics,
+            output_location="./outfiles" + job_name,
+            region=args.region,
+        )
+    
     elif args.processor == "vh":
         from boostedhiggs.vhprocessor import vhProcessor
 
@@ -179,7 +192,7 @@ def main(args):
     print(f"Metrics: {metrics}")
     print(f"Finished in {elapsed:.1f}s")
 
-    if args.processor == "hww" or args.processor == "vh" or args.processor == "zll":
+    if args.processor == "hww" or args.processor == "hww2" or args.processor == "vh" or args.processor == "zll":
         # dump to pickle
         filehandler = open("./outfiles/" + job_name + ".pkl", "wb")
         pkl.dump(out, filehandler)
