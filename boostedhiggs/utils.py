@@ -68,8 +68,158 @@ def get_pid_mask(
 def to_label(array: ak.Array) -> ak.Array:
     return ak.values_astype(array, np.int32)
 
+def match_H(genparts: GenParticleArray, fatjet: FatJetArray, dau_pdgid=W_PDGID):
+    """Gen matching for Higgs samples"""
+    higgs = genparts[get_pid_mask(genparts, HIGGS_PDGID, byall=False) * genparts.hasFlags(GEN_FLAGS)]
 
-def match_H(genparts: GenParticleArray, fatjet: FatJetArray, candidatelep_p4: PtEtaPhiMCandidateArray, dau_pdgid=W_PDGID):
+    # only select events that match an specific decay
+    # matched_higgs = higgs[ak.argmin(fatjet.delta_r(higgs), axis=1, keepdims=True)][:, 0]
+    matched_higgs = higgs[ak.argmin(fatjet.delta_r(higgs), axis=1, keepdims=True)]
+    matched_higgs_mask = ak.any(fatjet.delta_r(matched_higgs) < 0.8, axis=1)
+
+    matched_higgs = ak.firsts(matched_higgs)
+
+    matched_higgs_children = matched_higgs.children
+    higgs_children = higgs.children
+
+    genVars = {"fj_genH_pt": ak.fill_none(higgs.pt, FILL_NONE_VALUE)}
+
+    if dau_pdgid == W_PDGID:
+        children_mask = get_pid_mask(matched_higgs_children, [W_PDGID], byall=False)
+        is_hww = ak.any(children_mask, axis=1)
+
+        # order by mass, select lower mass child as V* and higher as V
+        matched_higgs_children = matched_higgs_children[children_mask]
+        children_mass = matched_higgs_children.mass
+        v_star = ak.firsts(matched_higgs_children[ak.argmin(children_mass, axis=1, keepdims=True)])
+        v = ak.firsts(matched_higgs_children[ak.argmax(children_mass, axis=1, keepdims=True)])
+
+        genVVars = {
+            "fj_genH_jet": fatjet.delta_r(higgs[:, 0]),
+            "fj_genV_dR": fatjet.delta_r(v),
+            "fj_genVstar": fatjet.delta_r(v_star),
+            "genV_genVstar_dR": v.delta_r(v_star),
+        }
+
+        # VV daughters
+        # requires coffea-0.7.21
+        all_daus = higgs_children.distinctChildrenDeep
+        all_daus = ak.flatten(all_daus, axis=2)
+        all_daus_flat = ak.flatten(all_daus, axis=2)
+        all_daus_flat_pdgId = abs(all_daus_flat.pdgId)
+
+        # the following tells you about the decay
+        num_quarks = ak.sum(all_daus_flat_pdgId <= b_PDGID, axis=1)
+        num_leptons = ak.sum(
+            (all_daus_flat_pdgId == ELE_PDGID) | (all_daus_flat_pdgId == MU_PDGID) | (all_daus_flat_pdgId == TAU_PDGID),
+            axis=1,
+        )
+        num_electrons = ak.sum(all_daus_flat_pdgId == ELE_PDGID, axis=1)
+        num_muons = ak.sum(all_daus_flat_pdgId == MU_PDGID, axis=1)
+        num_taus = ak.sum(all_daus_flat_pdgId == TAU_PDGID, axis=1)
+
+        # the following tells you about the matching
+        # prongs except neutrino
+        neutrinos = (
+            (all_daus_flat_pdgId == vELE_PDGID) | (all_daus_flat_pdgId == vMU_PDGID) | (all_daus_flat_pdgId == vTAU_PDGID)
+        )
+        leptons = (all_daus_flat_pdgId == ELE_PDGID) | (all_daus_flat_pdgId == MU_PDGID) | (all_daus_flat_pdgId == TAU_PDGID)
+
+        # num_m: number of matched leptons
+        # number of quarks excludes neutrino and leptons
+        num_m_quarks = ak.sum(fatjet.delta_r(all_daus_flat[~neutrinos & ~leptons]) < JET_DR, axis=1)
+        num_m_leptons = ak.sum(fatjet.delta_r(all_daus_flat[leptons]) < JET_DR, axis=1)
+        num_m_cquarks = ak.sum(fatjet.delta_r(all_daus_flat[all_daus_flat.pdgId == b_PDGID]) < JET_DR, axis=1)
+
+        lep_daughters = all_daus_flat[leptons]
+        # parent = ak.firsts(lep_daughters[fatjet.delta_r(lep_daughters) < JET_DR].distinctParent)
+        parent = ak.firsts(lep_daughters.distinctParent)
+        iswlepton = parent.mass == v.mass
+        iswstarlepton = parent.mass == v_star.mass
+
+        gen_lepton = ak.firsts(lep_daughters)
+
+        genHVVVars = {
+            "fj_nquarks": num_m_quarks,
+            "fj_ncquarks": num_m_cquarks,
+            "fj_lepinprongs": num_m_leptons,
+            "fj_H_VV_4q": to_label((num_quarks == 4) & (num_leptons == 0)),
+            "fj_H_VV_elenuqq": to_label((num_electrons == 1) & (num_quarks == 2) & (num_leptons == 1)),
+            "fj_H_VV_munuqq": to_label((num_muons == 1) & (num_quarks == 2) & (num_leptons == 1)),
+            "fj_H_VV_taunuqq": to_label((num_taus == 1) & (num_quarks == 2) & (num_leptons == 1)),
+            "fj_H_VV_isVlepton": iswlepton,
+            "fj_H_VV_isVstarlepton": iswstarlepton,
+            "fj_H_VV": is_hww,
+            "fj_H_VV_isMatched": matched_higgs_mask,
+            "gen_Vlep_pt": gen_lepton.pt,
+            # "genlep_dR_lep": lepton.delta_r(gen_lepton)
+            "fj_genRes_mass": matched_higgs.mass,
+        }
+
+        genVars = {**genVars, **genVVars, **genHVVVars}
+
+    elif dau_pdgid == TAU_PDGID:
+        children_mask = get_pid_mask(matched_higgs_children, [TAU_PDGID], byall=False)
+        daughters = matched_higgs_children[children_mask]
+
+        is_htt_matched = ak.any(children_mask, axis=1)
+
+        # taudaughters = daughters[(abs(daughters.pdgId) == TAU_PDGID)].children
+        taudaughters = daughters[(abs(daughters.pdgId) == TAU_PDGID)].distinctChildrenDeep
+        taudaughters = taudaughters[taudaughters.hasFlags(["isLastCopy"])]
+        taudaughters_pdgId = abs(taudaughters.pdgId)
+
+        taudaughters = taudaughters[
+            ((taudaughters_pdgId != vELE_PDGID) & (taudaughters_pdgId != vMU_PDGID) & (taudaughters_pdgId != vTAU_PDGID))
+        ]
+        taudaughters_pdgId = abs(taudaughters.pdgId)
+
+        flat_taudaughters_pdgId = ak.flatten(taudaughters_pdgId, axis=2)
+        taudecay = (
+            # pions/kaons (full hadronic tau) * 1
+            (
+                (
+                    ak.sum(
+                        (flat_taudaughters_pdgId == PI_PDGID)
+                        | (flat_taudaughters_pdgId == PO_PDGID)
+                        | (flat_taudaughters_pdgId == PP_PDGID),
+                        axis=1,
+                    )
+                    > 0
+                )
+            )
+            * 1
+            # 1 electron * 3
+            + (ak.sum(flat_taudaughters_pdgId == ELE_PDGID, axis=1) == 1) * 3
+            # 1 muon * 5
+            + (ak.sum(flat_taudaughters_pdgId == MU_PDGID, axis=1) == 1) * 5
+            # two leptons
+            + (
+                (ak.sum(flat_taudaughters_pdgId == ELE_PDGID, axis=1) == 2)
+                | (ak.sum(flat_taudaughters_pdgId == MU_PDGID, axis=1) == 2)
+            )
+            * 7
+        )
+
+        elehad = taudecay == 4
+        muhad = taudecay == 6
+        leplep = taudecay == 7
+        hadhad = ~elehad & ~muhad & ~leplep
+
+        genHTTVars = {
+            "fj_H_tt_hadhad": to_label(hadhad),
+            "fj_H_tt_elehad": to_label(elehad),
+            "fj_H_tt_muhad": to_label(muhad),
+            "fj_H_tt_leplep": to_label(leplep),
+            "fj_H_tt_isMatched": is_htt_matched,
+        }
+
+        genVars = {**genVars, **genHTTVars}
+
+    return genVars, is_hww
+
+
+def match_H_lep(genparts: GenParticleArray, fatjet: FatJetArray, candidatelep_p4: PtEtaPhiMCandidateArray, dau_pdgid=W_PDGID):
     """Gen matching for Higgs samples"""
     higgs = genparts[get_pid_mask(genparts, HIGGS_PDGID, byall=False) * genparts.hasFlags(GEN_FLAGS)]
 

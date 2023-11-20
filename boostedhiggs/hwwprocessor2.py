@@ -28,7 +28,7 @@ from boostedhiggs.corrections import (
     get_jec_jets,
     met_factory,
 )
-from boostedhiggs.utils import match_H, match_Top, match_V
+from boostedhiggs.utils import match_H, match_H_lep, match_Top, match_V
 
 from .run_tagger_inference import runInferenceTriton
 
@@ -481,7 +481,7 @@ class HwwProcessor2(processor.ProcessorABC):
         signal_mask = None
         if self.isMC:
             if ("HToWW" in dataset) or ("HWW" in dataset) or ("ttHToNonbb" in dataset):                
-                genVars, signal_mask = match_H(events.GenPart, candidatefj, candidatelep_p4)
+                genVars, signal_mask = match_H_lep(events.GenPart, candidatefj, candidatelep_p4)
                 
                 # print('===================================')
                 # print(len(signal_mask))
@@ -490,7 +490,7 @@ class HwwProcessor2(processor.ProcessorABC):
                 self.add_selection(name="Signal", sel=signal_mask)
             
             elif "HToTauTau" in dataset:
-                genVars, signal_mask = match_H(events.GenPart, candidatefj, candidatelep_p4, dau_pdgid=15)
+                genVars, signal_mask = match_H_lep(events.GenPart, candidatefj, candidatelep_p4, dau_pdgid=15)
                 self.add_selection(name="Signal", sel=signal_mask)
             elif ("WJets" in dataset) or ("ZJets" in dataset) or ("DYJets" in dataset):
                 genVars, _ = match_V(events.GenPart, candidatefj)
