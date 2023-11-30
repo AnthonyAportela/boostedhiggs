@@ -35,6 +35,41 @@ sel = {
         "mu": [[("lep_pt", "<", 55), (("lep_isolation", ">", 0.15))], [("lep_misolation", ">", 0.2), ("lep_pt", ">=", 55)]],
         "ele": [[("lep_pt", "<", 120), (("lep_isolation", ">", 0.15))], [("lep_pt", ">=", 120)]],
     },
+    "misoNO": {
+        "mu": [[("lep_pt", "<", 55), (("lep_isolation", "<", 0.15))], [("lep_pt", ">=", 55)]],
+        "ele": [[("lep_pt", "<", 120), (("lep_isolation", "<", 0.15))], [("lep_pt", ">=", 120)]],
+    },
+}
+
+input_feat = {
+    "v2-1111-10noMass1": [
+        "fj_pt",
+        "fj_msoftdrop",
+        "met_relpt",
+        # "met_fj_dphi",
+        "lep_fj_dr",
+        "n_bjets_L",
+        "n_bjets_M",
+        "n_bjets_T",
+        "lep_isolation",
+        "lep_misolation",
+    ],
+    "v2_1-12": [
+        "fj_pt",
+        "fj_msoftdrop",
+        "met_relpt",
+        # "met_fj_dphi",
+        "lep_fj_dr",
+        "n_bjets_L",
+        "n_bjets_M",
+        "n_bjets_T",
+        "lep_isolation",
+        "lep_misolation",
+    ],
+    # "v2_10_5": [],
+    # "v2_10_12": [],
+    # "v2_nor1": [],
+    "v2_nor2": [],
 }
 
 
@@ -79,6 +114,10 @@ def make_events_dict(
                 #     print(f"Skipping sample {sample}")
                 #     continue
 
+                if "DYJetsToLL_M-50_HT" in sample:
+                    print(f"Skipping sample {sample}")
+                    continue
+
                 for key in utils.combine_samples:
                     if key in sample:
                         sample_to_use = utils.combine_samples[key]
@@ -86,8 +125,11 @@ def make_events_dict(
                     else:
                         sample_to_use = sample
 
+                if sample_to_use not in samples:
+                    continue
+
                 # sample_to_use = sample
-                # if "QCD" not in sample:
+                # if "WJetsToLNu" not in sample:
                 #     continue
 
                 logging.info(f"Finding {sample} samples and should combine them under {sample_to_use}")
@@ -105,7 +147,10 @@ def make_events_dict(
                     continue
 
                 try:
+                    # if region in sel:
                     data = pd.read_parquet(parquet_files, filters=sel[region][ch])
+                    # else:
+                    #     data = pd.read_parquet(parquet_files)
 
                 except pyarrow.lib.ArrowInvalid:
                     # empty parquet because no event passed selection
@@ -121,9 +166,11 @@ def make_events_dict(
                     data = data[data.columns.drop(list(data.filter(regex="M_btag")))]
                     data = data[data.columns.drop(list(data.filter(regex="T_btag")))]
                     data = data[data.columns.drop(list(data.filter(regex="veto")))]
-                    data = data[data.columns.drop(list(data.filter(regex="fj_H_VV_")))]
+                    # data = data[data.columns.drop(list(data.filter(regex="fj_H_VV_")))]
                     data = data[data.columns.drop(list(data.filter(regex="_up")))]
                     data = data[data.columns.drop(list(data.filter(regex="_down")))]
+
+                data["abs_met_fj_dphi"] = np.abs(data["met_fj_dphi"])
 
                 # get event_weight
                 if sample_to_use != "Data":
@@ -137,8 +184,43 @@ def make_events_dict(
 
                 data["event_weight"] = event_weight
 
-                # use hidNeurons to get the finetuned scores
-                data["fj_ParT_score_finetuned"] = utils.get_finetuned_score(data, modelv="v2_nor2")
+                # add finetuned tagger score
+                for modelv, inp in input_feat.items():
+                    import onnx
+                    import onnxruntime as ort
+                    import scipy
+
+                    PATH = f"../../weaver-core-dev/experiments_finetuning/{modelv}/model.onnx"
+
+                    data["met_relpt"] = data["met_pt"] / data["fj_pt"]
+
+                    if modelv in ["v2-1111-10noMass1", "v2_1-12"]:
+                        input_dict = {
+                            "basic": data.loc[:, inp].values.astype("float32"),
+                            "highlevel": data.loc[:, "fj_ParT_hidNeuron000":"fj_ParT_hidNeuron127"].values.astype("float32"),
+                        }
+                    else:
+                        input_dict = {
+                            # "basic": 0,
+                            "highlevel": data.loc[:, "fj_ParT_hidNeuron000":"fj_ParT_hidNeuron127"].values.astype("float32"),
+                        }
+
+                    onnx_model = onnx.load(PATH)
+                    onnx.checker.check_model(onnx_model)
+
+                    ort_sess = ort.InferenceSession(
+                        PATH,
+                        providers=["AzureExecutionProvider"],
+                    )
+                    outputs = ort_sess.run(None, input_dict)
+
+                    if modelv == "v2_nor2":
+                        data["fj_ParT_score_finetuned"] = scipy.special.softmax(outputs[0], axis=1)[:, 0]
+                    else:
+                        data[f"fj_ParT_score_finetuned_{modelv}"] = scipy.special.softmax(outputs[0], axis=1)[:, 0]
+
+                # # use hidNeurons to get the finetuned scores
+                # data["fj_ParT_score_finetuned"] = utils.get_finetuned_score(data, modelv="v2_nor2")
 
                 # drop hidNeuron columns for memory
                 data = data[data.columns.drop(list(data.filter(regex="hidNeuron")))]

@@ -22,7 +22,15 @@ import numpy as np
 import pandas as pd
 import rhalphalib as rl
 from systematics import systs_from_parquets, systs_not_from_parquets
-from utils import get_template, labels, load_templates, samples, shape_to_num, sigs
+from utils import (
+    blindBins,
+    get_template,
+    labels,
+    load_templates,
+    samples,
+    shape_to_num,
+    sigs,
+)
 
 rl.ParametericSample.PreferRooParametricHist = True
 logging.basicConfig(level=logging.INFO)
@@ -59,9 +67,15 @@ def create_datacard(hists_templates, years, lep_channels, do_rhalphabet, order):
 
     # define the signal and control regions
     sig_regions = ["SR1VBF", "SR1ggFpt250to300", "SR1ggFpt300to450", "SR1ggFpt450toInf", "SR2ggFpt250toInf"]
-    regions = sig_regions + ["WJetsCR"]
+
+    sig_regions_blinded = []
+    for sig_region in sig_regions.copy():
+        sig_regions_blinded += [f"{sig_region}Blinded"]
+
+    regions = sig_regions + sig_regions_blinded + ["WJetsCR"] + ["WJetsCRBlinded"]
 
     # fill datacard with systematics and rates
+    # ChName may have "Blinded" in the string, but region does not
     for ChName in regions:
         if do_rhalphabet:  # use MC wjets+qcd if do_rhalphabet=False
             Samples = samples.copy()
@@ -70,11 +84,18 @@ def create_datacard(hists_templates, years, lep_channels, do_rhalphabet, order):
         else:
             Samples = samples.copy()
 
+        if "Blinded" in ChName:
+            h = blindBins(hists_templates.copy())
+            region = ChName.replace("Blinded", "")  # region will be used to get the axes of the templates
+        else:
+            h = hists_templates.copy()
+            region = ChName
+
         ch = rl.Channel(ChName)
         model.addChannel(ch)
 
         for sName in Samples:
-            templ = get_template(hists_templates, sName, ChName)
+            templ = get_template(h, sName, region)
             stype = rl.Sample.SIGNAL if sName in sigs else rl.Sample.BACKGROUND
             sample = rl.TemplateSample(ch.name + "_" + labels[sName], stype, templ)
 
@@ -95,9 +116,9 @@ def create_datacard(hists_templates, years, lep_channels, do_rhalphabet, order):
             # SYSTEMATICS FROM PARQUETS
             for syst_on_sample in ["all_samples", sName]:  # apply common systs and per sample systs
                 for sys_name, sys_value in sys_from_parquets[syst_on_sample].items():
-                    syst_up = hists_templates[{"Sample": sName, "Region": ChName, "Systematic": sys_name + "Up"}].values()
-                    syst_do = hists_templates[{"Sample": sName, "Region": ChName, "Systematic": sys_name + "Down"}].values()
-                    nominal = hists_templates[{"Sample": sName, "Region": ChName, "Systematic": "nominal"}].values()
+                    syst_up = h[{"Sample": sName, "Region": region, "Systematic": sys_name + "Up"}].values()
+                    syst_do = h[{"Sample": sName, "Region": region, "Systematic": sys_name + "Down"}].values()
+                    nominal = h[{"Sample": sName, "Region": region, "Systematic": "nominal"}].values()
 
                     if sys_value.combinePrior == "lnN":
                         eff_up = shape_to_num(syst_up, nominal)
@@ -114,11 +135,12 @@ def create_datacard(hists_templates, years, lep_channels, do_rhalphabet, order):
             ch.addSample(sample)
 
         # add data
-        data_obs = get_template(hists_templates, "Data", ChName)
+        data_obs = get_template(h, "Data", region)
         ch.setObservation(data_obs)
 
     if do_rhalphabet:  # data-driven estimation
-        rhalphabet(model, hists_templates, order, passChNames=sig_regions, failChName="WJetsCR")
+        rhalphabet(model, h, order, passChNames=sig_regions, failChName="WJetsCR")
+        rhalphabet(model, h, order, passChNames=sig_regions_blinded, failChName="WJetsCRBlinded")
 
     return model
 
@@ -172,8 +194,27 @@ def rhalphabet(model, hists_templates, order, passChNames, failChName):
             # square_params=True,   # TODO: figure why this can't be uncommented
         )
 
-        den = hists_templates[{"Region": failChName, "Sample": ["WJetsLNu", "QCD"], "Systematic": "nominal"}].sum().value
-        num = hists_templates[{"Region": passChName, "Sample": ["WJetsLNu", "QCD"], "Systematic": "nominal"}].sum().value
+        if "Blinded" in failChName:
+            assert "Blinded" in passChName
+            h = blindBins(hists_templates.copy())
+
+            den = (
+                h[{"Region": failChName.replace("Blinded", ""), "Sample": ["WJetsLNu", "QCD"], "Systematic": "nominal"}]
+                .sum()
+                .value
+            )
+            num = (
+                h[{"Region": passChName.replace("Blinded", ""), "Sample": ["WJetsLNu", "QCD"], "Systematic": "nominal"}]
+                .sum()
+                .value
+            )
+
+        else:
+            assert "Blinded" not in passChName
+            h = hists_templates.copy()
+
+            den = h[{"Region": failChName, "Sample": ["WJetsLNu", "QCD"], "Systematic": "nominal"}].sum().value
+            num = h[{"Region": passChName, "Sample": ["WJetsLNu", "QCD"], "Systematic": "nominal"}].sum().value
 
         # get the transfer factor
         wjets_eff = num / den

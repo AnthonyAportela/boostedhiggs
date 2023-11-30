@@ -162,11 +162,10 @@ axis_dict = {
     "fj_bjets_ophem": hist2.axis.Regular(35, 0, 1, name="var", label=r"max btagFlavB (opphem)", overflow=True),
     "fj_bjets": hist2.axis.Regular(35, 0, 1, name="var", label=r"max btagFlavB", overflow=True),
     "lep_fj_dr": hist2.axis.Regular(35, 0.0, 0.8, name="var", label=r"$\Delta R(Jet, Lepton)$", overflow=True),
-    # "lep_fj_dr": hist2.axis.Regular(35, 0.8, 5, name="var", label=r"$\Delta R(Jet, Lepton)$", overflow=True),
     "mu_mvaId": hist2.axis.Variable([0, 1, 2, 3, 4, 5], name="var", label="Muon MVAID", overflow=True),
     "ele_highPtId": hist2.axis.Regular(5, 0, 5, name="var", label="Electron high pT ID", overflow=True),
     "mu_highPtId": hist2.axis.Regular(5, 0, 5, name="var", label="Muon high pT ID", overflow=True),
-    "fj_pt": hist2.axis.Regular(30, 200, 600, name="var", label=r"Jet $p_T$ [GeV]", overflow=True),
+    "fj_pt": hist2.axis.Regular(30, 300, 600, name="var", label=r"Jet $p_T$ [GeV]", overflow=True),
     "fj_msoftdrop": hist2.axis.Regular(35, 20, 250, name="var", label=r"Jet $m_{sd}$ [GeV]", overflow=True),
     "rec_higgs_m": hist2.axis.Variable(
         list(range(50, 240, 20)), name="var", label=r"Higgs reconstructed mass [GeV]", overflow=True
@@ -273,11 +272,11 @@ def plot_hists(
 
         if add_data and data and len(bkg) > 0:
             if add_soverb and len(signal) > 0:
-                fig, (ax, rax, sax) = plt.subplots(
-                    nrows=3,
+                fig, (ax, rax, sax, dax) = plt.subplots(
+                    nrows=4,
                     ncols=1,
                     figsize=(8, 8),
-                    gridspec_kw={"height_ratios": (4, 1, 1), "hspace": 0.07},
+                    gridspec_kw={"height_ratios": (4, 1, 1, 1), "hspace": 0.07},
                     sharex=True,
                 )
             else:
@@ -289,13 +288,14 @@ def plot_hists(
                     sharex=True,
                 )
                 sax = None
+                dax = None
         else:
             if add_soverb and len(signal) > 0:
-                fig, (ax, sax) = plt.subplots(
-                    nrows=2,
+                fig, (ax, sax, dax) = plt.subplots(
+                    nrows=3,
                     ncols=1,
                     figsize=(8, 8),
-                    gridspec_kw={"height_ratios": (4, 1), "hspace": 0.07},
+                    gridspec_kw={"height_ratios": (4, 1, 1), "hspace": 0.07},
                     sharex=True,
                 )
                 rax = None
@@ -303,6 +303,7 @@ def plot_hists(
                 fig, ax = plt.subplots(figsize=(8, 8))
                 rax = None
                 sax = None
+                dax = None
 
         errps = {
             "hatch": "////",
@@ -436,7 +437,7 @@ def plot_hists(
                 totsignal_val = tot_signal.values()
                 # replace values where bkg is 0
                 totsignal_val[tot_val == 0] = 0
-                soverb_val = totsignal_val / np.sqrt(tot_val)
+                soverb_val = totsignal_val / (tot_val)
                 hep.histplot(
                     soverb_val,
                     tot_signal.axes[0].edges,
@@ -446,6 +447,32 @@ def plot_hists(
                     color="tab:red",
                     flow="none",
                 )
+
+                # totsignal_val = tot_signal.values()
+                # # replace values where bkg is 0
+                # totsignal_val[tot_val == 0] = 0
+                # hep.histplot(
+                #     totsignal_val,
+                #     tot_signal.axes[0].edges,
+                #     label="Total Signal",
+                #     ax=dax,
+                #     linewidth=3,
+                #     color="tab:red",
+                #     flow="none",
+                # )
+
+                for i, sig in enumerate(signal_mult):
+                    lab_sig_mult = f"{mult_factor} * {plot_labels[signal_labels[i]]}"
+                    if mult_factor == 1:
+                        lab_sig_mult = f"{plot_labels[signal_labels[i]]}"
+                    hep.histplot(
+                        sig,
+                        ax=dax,
+                        label=lab_sig_mult,
+                        linewidth=3,
+                        color=color_by_sample[signal_labels[i]],
+                        flow="none",
+                    )
 
                 # integrate soverb in a given range for fj_minus_lep_mass
                 if var == "fj_minus_lep_m":
@@ -473,16 +500,11 @@ def plot_hists(
 
                     soverb_integrated = round((s / b).item(), 2)
                     # sax.legend(title=f"S/sqrt(B) (in {range_min}-{range_max})={soverb_integrated:.2f}")
+                sax.set_ylim(0, 0.013)
+                sax.set_yticks([0, 0.01])
 
-                if "SR1" in text_:
-                    sax.set_ylim(0, 1.7)
-                    sax.set_yticks([0, 0.5, 1.0, 1.5])
-                elif "SR2" in text_:
-                    sax.set_ylim(0, 0.7)
-                    sax.set_yticks([0, 0.2, 0.4, 0.6])
-
-                # sax.set_ylim(0, 1.2)
-                # sax.set_yticks([0, 0.5, 1.0])
+                dax.set_ylim(0, 6)
+                dax.set_yticks([0, 2, 4])
 
                 # sax.set_ylim(0, 0.5)
                 # sax.set_yticks([0, 0.3])
@@ -494,15 +516,18 @@ def plot_hists(
             ax.set_xlabel("")
             if rax is not None:
                 rax.set_xlabel("")
-                rax.set_ylabel("Data/MC", fontsize=20)
-            sax.set_ylabel(r"S/$\sqrt{B}$", fontsize=20, y=0.4, labelpad=0)
+                rax.set_ylabel("Ratio", fontsize=20, labelpad=15)
+            sax.set_ylabel(r"S/B", fontsize=20, y=0.4, labelpad=0)
             sax.set_xlabel(f"{h.axes[-1].label}")  # assumes the variable to be plotted is at the last axis
+
+            dax.set_ylabel(r"S", fontsize=20, y=0.4, labelpad=20)
+            dax.set_xlabel(f"{h.axes[-1].label}")  # assumes the variable to be plotted is at the last axis
 
         elif rax is not None:
             ax.set_xlabel("")
             rax.set_xlabel(f"{h.axes[-1].label}")  # assumes the variable to be plotted is at the last axis
 
-            rax.set_ylabel("Data/MC", fontsize=20, labelpad=0)
+            rax.set_ylabel("Ratio", fontsize=20, labelpad=15)
 
         # get handles and labels of legend
         handles, labels = ax.get_legend_handles_labels()
@@ -523,16 +548,18 @@ def plot_hists(
 
         if len(channels) == 1:
             if channels[0] == "ele":
-                text_ += " electron"
+                chlab = text_ + " electron"
             else:
-                text_ += " muon"
+                chlab = text_ + " muon"
+        else:
+            chlab = text_
 
         ax.legend(
             [hand[idx] for idx in range(len(hand))],
             [lab[idx] for idx in range(len(lab))],
             bbox_to_anchor=(1.05, 1),
             loc="upper left",
-            title=text_,
+            title=chlab,
         )
 
         # if len(channels) == 2:
@@ -555,8 +582,6 @@ def plot_hists(
         if logy:
             ax.set_yscale("log")
             ax.set_ylim(1e-1)
-        else:
-            ax.set_ylim(0)
 
         hep.cms.lumitext("%.1f " % luminosity + r"fb$^{-1}$ (13 TeV)", ax=ax, fontsize=20)
         hep.cms.text("Work in Progress", ax=ax, fontsize=15)

@@ -151,26 +151,18 @@ chmod +x ${logsdir}
 combined_datacard=${outdir}/combined.txt
 ws=${outdir}/workspace.root
 
+sr1="SR1VBF"
 sr2="SR1ggFpt250to300"
 sr3="SR1ggFpt300to450"
 sr4="SR1ggFpt450toInf"
 sr5="SR2ggFpt250toInf"
 
-sr2B="SR1ggFpt250to300Blinded"
-sr3B="SR1ggFpt300to450Blinded"
-sr4B="SR1ggFpt450toInfBlinded"
-sr5B="SR2ggFpt250toInfBlinded"
-
 cr1="WJetsCR"
 
-# leave out VBF for now
+# ccargs="SR1=${cards_dir}/${sr1}.txt SR2=${cards_dir}/${sr2}.txt SR3=${cards_dir}/${sr3}.txt SR4=${cards_dir}/${sr4}.txt SR5=${cards_dir}/${sr5}.txt"
 ccargs="SR2=${cards_dir}/${sr2}.txt SR3=${cards_dir}/${sr3}.txt SR4=${cards_dir}/${sr4}.txt SR5=${cards_dir}/${sr5}.txt"
-ccargs+=" SR2B=${cards_dir}/${sr2B}.txt SR3B=${cards_dir}/${sr3B}.txt SR4B=${cards_dir}/${sr4B}.txt SR5B=${cards_dir}/${sr5B}.txt"
+
 ccargs+=" CR=${cards_dir}/${cr1}.txt"
-
-maskunblindedargs="mask_SR2=1,mask_SR3=1,mask_SR4=1,mask_SR5=1,mask_CR=0,mask_SR2B=0,mask_SR3B=0,mask_SR4B=0,mask_SR5B=0"
-maskblindedargs="mask_SR2=0,mask_SR3=0,mask_SR4=0,mask_SR5=0,mask_CR=0,mask_SR2B=1,mask_SR3B=1,mask_SR4B=1,mask_SR5B=1"
-
 
 if [ $workspace = 1 ]; then
     echo "Combining cards:"
@@ -190,33 +182,17 @@ else
 fi
 
 
-if [ $bfit = 1 ]; then
-
-    echo "Blinded background-only fit"
-    combine -D $dataset -M MultiDimFit --saveWorkspace -m 125 -d $ws \
-    --setParameters $maskunblindedargs,r=0 --freezeParameters r 2>&1 | tee $logsdir/MultiDimFit.txt
-
-fi
-
-
 if [ $significance = 1 ]; then
     echo "Expected significance"
 
-    wsm_snapshot=higgsCombineTest.MultiDimFit.mH125
-    combine -M Significance -d ${wsm_snapshot}.root -m 125 --snapshotName MultiDimFit \
-    -t -1 --expectSignal=1 --saveWorkspace --saveToys --bypassFrequentistFit \
-    --setParameters $maskblindedargs,r=1 --floatParameters r --toysFrequentist 2>&1 | tee $logsdir/Significance.txt
-
+    combine -M Significance -d $ws -m 125 -t -1 --expectSignal=1 --rMin -1 --rMax 5
 fi
 
 if [ $dfit_asimov = 1 ]; then
 
-    wsm_snapshot=higgsCombineTest.MultiDimFit.mH125
     echo "Fit Diagnostics"
-    combine -M FitDiagnostics -m 125 -d ${wsm_snapshot}.root --snapshotName MultiDimFit \
-    -t -1 --expectSignal=1 --toysFrequentist --bypassFrequentistFit --saveWorkspace --saveToys \
-    --setParameters $maskblindedargs --floatParameters r \
-    -n Asimov --ignoreCovWarning \
+    combine -M FitDiagnostics -m 125 -d $ws \
+    -t -1 --expectSignal=1 --saveWorkspace --saveToys  -n Asimov --ignoreCovWarning \
     --saveShapes --saveNormalizations --saveWithUncertainties --saveOverallShapes 2>&1 | tee $logsdir/FitDiagnostics.txt
 
 fi
