@@ -53,6 +53,8 @@ class InputProcessor(ProcessorABC):
                 "fj_ncquarks",
                 "fj_lepinprongs",
                 "fj_nquarks",
+                "fj_H_VV",
+                "fj_H_VV_isMatched",
                 "fj_H_VV_4q",
                 "fj_H_VV_elenuqq",
                 "fj_H_VV_munuqq",
@@ -83,24 +85,6 @@ class InputProcessor(ProcessorABC):
                 "mass",
                 "pt",
                 "msoftdrop",
-            ],
-            "MET": [
-                "met_relpt",
-                "met_relphi",
-            ],
-            "Lep": [
-                "fj_lep_dR",
-                "fj_lep_pt",
-                "fj_lep_iso",
-                "fj_lep_miniiso",
-            ],
-            "Others": [
-                "n_bjets_L",
-                "n_bjets_M",
-                "n_bjets_T",
-                "rec_W_lnu",
-                "rec_W_qq",
-                "rec_higgs_m",
             ],
         }
 
@@ -201,6 +185,12 @@ class InputProcessor(ProcessorABC):
         dr_jet_lepfj = goodjets.delta_r(candidatefj)
         ak4_outside_ak8 = goodjets[dr_jet_lepfj > 0.8]
 
+        # VBF variables
+        jet1 = ak4_outside_ak8[:, 0:1]
+        jet2 = ak4_outside_ak8[:, 1:2]
+        deta = abs(ak.firsts(jet1).eta - ak.firsts(jet2).eta)
+        mjj = (ak.firsts(jet1) + ak.firsts(jet2)).mass
+
         # rec_higgs
         candidateNeutrino = ak.zip(
             {
@@ -260,13 +250,20 @@ class InputProcessor(ProcessorABC):
             .filled(fill_value=0)
         )
 
+        Others["rec_W_lnu_pt"] = rec_W_lnu.pt.to_numpy().filled(fill_value=0)
         Others["rec_W_lnu_m"] = rec_W_lnu.mass.to_numpy().filled(fill_value=0)
+        Others["rec_W_qq_pt"] = rec_W_qq.pt.to_numpy().filled(fill_value=0)
         Others["rec_W_qq_m"] = rec_W_qq.mass.to_numpy().filled(fill_value=0)
+        Others["rec_higgs_pt"] = rec_higgs.pt.to_numpy().filled(fill_value=0)
         Others["rec_higgs_m"] = rec_higgs.mass.to_numpy().filled(fill_value=0)
 
+        Others["mjj"] = mjj.to_numpy().filled(fill_value=0)
+        Others["deta"] = deta.to_numpy().filled(fill_value=0)
+
         METVars = {}
+        METVars["met_pt"] = met.pt
         METVars["met_relpt"] = met.pt / candidatefj.pt
-        METVars["met_relphi"] = met.delta_phi(candidatefj)
+        METVars["met_fj_dphi"] = met.delta_phi(candidatefj)
 
         skimmed_vars = {**FatJetVars, **{"matched_mask": matched_mask}, **genVars, **METVars, **LepVars, **Others}
 

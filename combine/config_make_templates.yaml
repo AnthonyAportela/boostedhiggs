@@ -11,33 +11,424 @@ samples:
     - SingleTop
     - Diboson
     - Data
+    - WJetsQCD
+
+mass_binning:
+    SR1VBF: 40
+    SR1ggFpt300to450: 15
+    SR1ggFpt450toInf: 15
+    SR2: 10
+    WJetsCR: 10
 
 regions_sel:
-    passHigh: ( (fj_ParT_score_finetuned>0.97) ) # high purity signal region
-    passMedium: ( (fj_ParT_score_finetuned<0.97) & (fj_ParT_score_finetuned>0.85) ) # medium purity signal region
-    wjetsCR: ( (fj_ParT_score_finetuned<0.85) & (fj_ParT_score_finetuned>0.20) & (lep_met_mt>40))
+    ########################################
+    # "SR1VBF": (fj_ParT_score_finetuned>0.97) & ( (mjj>1000) & (deta>3.5) ) & (n_bjets_T==0)
+    # "SR1ggFpt250to300": (fj_ParT_score_finetuned>0.98) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt<300) & (n_bjets_T==0)
+    # "SR1ggFpt300to450": (fj_ParT_score_finetuned>0.98) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt>300) & (fj_pt<450) & (n_bjets_T==0)
+    # "SR1ggFpt450toInf": (fj_ParT_score_finetuned>0.98) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450) & (n_bjets_T==0)
+    # "SR2ggFpt250toInf": (fj_ParT_score_finetuned<0.98) & (fj_ParT_score_finetuned>0.97) & (n_bjets_T==0)
+    ########################################
 
-    # fail: ( (fj_ParT_score_finetuned<0.20) & (n_bjets_T == 0) ) # qcd control region
-    # wjetsCR: ( (fj_ParT_score_finetuned<0.85) & (fj_ParT_score_finetuned>0.20) & (n_bjets_L == 0) )
-    # ttbarCR: ( (fj_ParT_score_finetuned<0.20) & (n_bjets_T > 0) )
+    # "SR199": (fj_ParT_score_finetuned>0.99) & (n_bjets_T==0)
+    # "SR1985": (fj_ParT_score_finetuned>0.985) & (n_bjets_T==0)
+    # "SR198": (fj_ParT_score_finetuned>0.98) & (n_bjets_T==0)
+    # "SR1975": (fj_ParT_score_finetuned>0.975) & (n_bjets_T==0)
+    # "SR197": (fj_ParT_score_finetuned>0.97) & (n_bjets_T==0)
+    # "SR1965": (fj_ParT_score_finetuned>0.965) & (n_bjets_T==0)
+    # "SR196": (fj_ParT_score_finetuned>0.96) & (n_bjets_T==0)
+
+    # "ggF99": (fj_ParT_score_finetuned>0.99) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF985": (fj_ParT_score_finetuned>0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF98": (fj_ParT_score_finetuned>0.98) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF975": (fj_ParT_score_finetuned>0.975) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF97": (fj_ParT_score_finetuned>0.97) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF965": (fj_ParT_score_finetuned>0.965) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF96": (fj_ParT_score_finetuned>0.96) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+
+    # "VBF99": (fj_ParT_score_finetuned>0.99) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF985": (fj_ParT_score_finetuned>0.985) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF98": (fj_ParT_score_finetuned>0.98) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF975": (fj_ParT_score_finetuned>0.975) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF97": (fj_ParT_score_finetuned>0.97) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF965": (fj_ParT_score_finetuned>0.965) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF96": (fj_ParT_score_finetuned>0.96) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+
+    # "SR2ggF98and985": (fj_ParT_score_finetuned>0.98) & (fj_ParT_score_finetuned<0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "SR2ggF975and985": (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "SR2ggF97and985": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "SR2ggF965and985": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "SR2ggF96and985": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+
+    # "SR2ggF975and98": (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.98) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "SR2ggF97and98": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "SR2ggF965and98": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.98) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "SR2ggF96and98": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.98) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+
+
+    "VBF97": (fj_ParT_score_finetuned>0.97) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    "SR1ggFpt250to300": (fj_ParT_score_finetuned>0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt>250) & (fj_pt<300)
+    "SR1ggFpt300to450": (fj_ParT_score_finetuned>0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt>300) & (fj_pt<450)
+    "SR1ggFpt450toInf": (fj_ParT_score_finetuned>0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450)
+    "SR2ggF":  (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+
+
+    # "ParTSR199": (fj_ParT_score>0.99) & (n_bjets_T==0)
+    # "ParTSR1985": (fj_ParT_score>0.985) & (n_bjets_T==0)
+    # "ParTSR198": (fj_ParT_score>0.98) & (n_bjets_T==0)
+    # "ParTSR1975": (fj_ParT_score>0.975) & (n_bjets_T==0)
+    # "ParTSR197": (fj_ParT_score>0.97) & (n_bjets_T==0)
+    # "ParTSR1965": (fj_ParT_score>0.965) & (n_bjets_T==0)
+    # "ParTSR196": (fj_ParT_score>0.96) & (n_bjets_T==0)
+
+    # "ParTggF985": (fj_ParT_score>0.985) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ParTggF98": (fj_ParT_score>0.98) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ParTggF975": (fj_ParT_score>0.975) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ParTggF97": (fj_ParT_score>0.97) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+    # "ParTggF965": (fj_ParT_score>0.965) & (n_bjets_T==0) & ( (mjj<1000) | (deta<3.5) )
+
+    # "ParTVBF985": (fj_ParT_score>0.985) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "ParTVBF98": (fj_ParT_score>0.98) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "ParTVBF975": (fj_ParT_score>0.975) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "ParTVBF97": (fj_ParT_score>0.97) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "ParTVBF965": (fj_ParT_score>0.965) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+    # "ParTVBF96": (fj_ParT_score>0.96) & (n_bjets_T==0) & ( (mjj>1000) & (deta>3.5) )
+
+
+
+
+    # "WJetsCR": (fj_ParT_score_finetuned<0.97) & (fj_ParT_score_finetuned>0.50) & (n_bjets_T==0) & fj_pt>250
+
+    # "WJetsCRpt250": (fj_ParT_score_finetuned<0.97) & (fj_ParT_score_finetuned>0.50) & (n_bjets_T==0) & fj_pt>250
+
+    # "TopCR": (fj_ParT_score_finetuned>0.50) & (n_bjets_T>0)
+
+    # "SR1VBF": (fj_ParT_score_finetuned>0.98) & ( (mjj>1000) & (deta>3.5) ) & (n_bjets_T==0)
+    # "SR1ggFpt300to450": (fj_ParT_score_finetuned>0.98) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt<450) & (n_bjets_T==0)
+    # "SR1ggFpt450toInf": (fj_ParT_score_finetuned>0.98) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450) & (n_bjets_T==0)
+    # "SR2": (fj_ParT_score_finetuned<0.98) & (fj_ParT_score_finetuned>0.97) & (n_bjets_T==0)
+
+
+    # "VBFtagger>0.95": (fj_ParT_score_finetuned>0.95) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.955": (fj_ParT_score_finetuned>0.955) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.96": (fj_ParT_score_finetuned>0.96) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.965": (fj_ParT_score_finetuned>0.965) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.97": (fj_ParT_score_finetuned>0.97) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.975": (fj_ParT_score_finetuned>0.975) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.98": (fj_ParT_score_finetuned>0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.985": (fj_ParT_score_finetuned>0.985) & ( (mjj>1000) & (deta>3.5) )
+
+    # "ggFtagger>0.98": (fj_ParT_score_finetuned>0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.985": (fj_ParT_score_finetuned>0.985) & ( (mjj<1000) | (deta<3.5) )
+
+    # "ggF0.985>tagger>0.95": (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.955": (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.96": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.965": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.975": (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.98": (fj_ParT_score_finetuned>0.98) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+
+    # "ggF0.98>tagger>0.95": (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.955": (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.96": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.965": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.975": (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+
 
 lepiso_sel: # keys must match keys in regions_sel above; values are either [lepiso, lepisoinv]
-    passHigh: lepiso
-    passMedium: lepiso
-    wjetsCR: lepiso
-
-    # fail: lepisoinv
-    # ttbarCR: lepiso
+    SR1: lepiso
+    SR2: lepiso
+    WJetsCR: lepiso
+    TopCR: lepiso
 
 categories_sel:
-    VBFpt200toinf: ( (mjj>1000) & (deta>3.5) )
-    ggFpt200to300: ( (mjj<1000) | (deta<3.5) ) & (fj_pt<300)
-    ggFpt300toinf: ( (mjj<1000) | (deta<3.5) ) & (fj_pt>300)
+#     "SR1VBF": ( (mjj>1000) & (deta>3.5) ) & (fj_ParT_score_finetuned>0.98) & (n_bjets_T==0)
+#     "SR1ggpt300to450": ( (mjj<1000) | (deta<3.5) ) & (fj_pt<450) & (fj_ParT_score_finetuned>0.98) & (n_bjets_T==0)
+#     "SR1ggFpt450toInf": ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450) & (fj_ParT_score_finetuned>0.98) & (n_bjets_T==0)
+#     "SR2": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98) & (n_bjets_T==0)
+#     "TopCR": (fj_ParT_score_finetuned>0.5) & (n_bjets_T>0)
+#     "WJetsCR": (fj_ParT_score_finetuned<0.85) & (fj_ParT_score_finetuned>0.50) & (n_bjets_T==0)
+
+    # VBFpt300toinf: ( (mjj>1000) & (deta>3.5) )
+    # ggFpt300to450: ( (mjj<1000) | (deta<3.5) ) & (fj_pt<450)
+    # ggFpt450toinf: ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450)
+
+    # ############# v7,8,9: START
+    # "tagger>0.995": (fj_ParT_score_finetuned>0.995)
+    # "tagger>0.99": (fj_ParT_score_finetuned>0.99)
+    # "tagger>0.985": (fj_ParT_score_finetuned>0.985)
+    # "tagger>0.98": (fj_ParT_score_finetuned>0.98)
+    # "tagger>0.975": (fj_ParT_score_finetuned>0.975)
+    # "tagger>0.97": (fj_ParT_score_finetuned>0.97)
+    # "tagger>0.965": (fj_ParT_score_finetuned>0.965)
+    # "tagger>0.96": (fj_ParT_score_finetuned>0.96)
+    # # "tagger>0.955": (fj_ParT_score_finetuned>0.955)
+    # # "tagger>0.95": (fj_ParT_score_finetuned>0.95)
+    # # "tagger>0.94": (fj_ParT_score_finetuned>0.94)
+    # # "tagger>0.93": (fj_ParT_score_finetuned>0.93)
+    # # "tagger>0.92": (fj_ParT_score_finetuned>0.92)
+    # # "tagger>0.91": (fj_ParT_score_finetuned>0.91)
+    # # "tagger>0.90": (fj_ParT_score_finetuned>0.90)
+    # # "tagger>0.89": (fj_ParT_score_finetuned>0.89)
+    # # "tagger>0.88": (fj_ParT_score_finetuned>0.88)
+    # # "tagger>0.87": (fj_ParT_score_finetuned>0.87)
+    # # "tagger>0.86": (fj_ParT_score_finetuned>0.86)
+    # # "tagger>0.85": (fj_ParT_score_finetuned>0.85)
+    # ############# v7,8,9: END
+
+
+    # ############# v10: START
+    # "tagger>0.985": (fj_ParT_score_finetuned>0.985)
+    # "tagger>0.97": (fj_ParT_score_finetuned>0.97)
+
+    # "0.985>tagger>0.80":  (fj_ParT_score_finetuned>0.80) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.81":  (fj_ParT_score_finetuned>0.81) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.82":  (fj_ParT_score_finetuned>0.82) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.83":  (fj_ParT_score_finetuned>0.83) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.84":  (fj_ParT_score_finetuned>0.84) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.85":  (fj_ParT_score_finetuned>0.85) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.86":  (fj_ParT_score_finetuned>0.86) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.87":  (fj_ParT_score_finetuned>0.87) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.88":  (fj_ParT_score_finetuned>0.88) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.89":  (fj_ParT_score_finetuned>0.89) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.90":  (fj_ParT_score_finetuned>0.90) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.91":  (fj_ParT_score_finetuned>0.91) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.92":  (fj_ParT_score_finetuned>0.92) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.93":  (fj_ParT_score_finetuned>0.93) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.94":  (fj_ParT_score_finetuned>0.94) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.95":  (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.96":  (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.985)
+
+    # "0.97>tagger>0.80":  (fj_ParT_score_finetuned>0.80) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.81":  (fj_ParT_score_finetuned>0.81) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.82":  (fj_ParT_score_finetuned>0.82) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.83":  (fj_ParT_score_finetuned>0.83) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.84":  (fj_ParT_score_finetuned>0.84) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.85":  (fj_ParT_score_finetuned>0.85) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.86":  (fj_ParT_score_finetuned>0.86) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.87":  (fj_ParT_score_finetuned>0.87) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.88":  (fj_ParT_score_finetuned>0.88) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.89":  (fj_ParT_score_finetuned>0.89) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.90":  (fj_ParT_score_finetuned>0.90) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.91":  (fj_ParT_score_finetuned>0.91) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.92":  (fj_ParT_score_finetuned>0.92) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.93":  (fj_ParT_score_finetuned>0.93) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.94":  (fj_ParT_score_finetuned>0.94) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.95":  (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.96":  (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.97)
+    # ############# v10: END
+
+    # ############# v11: START
+    # "tagger>0.985": (fj_ParT_score_finetuned>0.985)
+    # "tagger>0.97": (fj_ParT_score_finetuned>0.97)
+
+    # "0.985>tagger>0.965":  (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.97":  (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.975":  (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.98":  (fj_ParT_score_finetuned>0.98) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.9825":  (fj_ParT_score_finetuned>0.9825) & (fj_ParT_score_finetuned<0.985)
+
+    # "0.97>tagger>0.965":  (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.9675":  (fj_ParT_score_finetuned>0.9675) & (fj_ParT_score_finetuned<0.97)
+    # ############# v11: END
+
+
+    # ############# v12: START
+    # "0.97>tagger>0.95":  (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.955":  (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.96":  (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.965":  (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.97)
+
+    # "0.975>tagger>0.95":  (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.975)
+    # "0.975>tagger>0.955":  (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.975)
+    # "0.975>tagger>0.96":  (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.975)
+    # "0.975>tagger>0.965":  (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.975)
+    # "0.975>tagger>0.97":  (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.975)
+
+    # "0.98>tagger>0.95":  (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.98)
+    # "0.98>tagger>0.955":  (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.98)
+    # "0.98>tagger>0.96":  (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.98)
+    # "0.98>tagger>0.965":  (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.98)
+    # "0.98>tagger>0.97":  (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98)
+    # "0.98>tagger>0.975":  (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.98)
+
+    # "0.985>tagger>0.95":  (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.955":  (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.96":  (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.965":  (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.97":  (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.975":  (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.985)
+    # "0.985>tagger>0.98":  (fj_ParT_score_finetuned>0.98) & (fj_ParT_score_finetuned<0.985)
+
+
+    # "VBFtagger>0.95": (fj_ParT_score_finetuned>0.95) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.955": (fj_ParT_score_finetuned>0.955) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.96": (fj_ParT_score_finetuned>0.96) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.965": (fj_ParT_score_finetuned>0.965) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.97": (fj_ParT_score_finetuned>0.97) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.975": (fj_ParT_score_finetuned>0.975) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.98": (fj_ParT_score_finetuned>0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "VBFtagger>0.985": (fj_ParT_score_finetuned>0.985) & ( (mjj>1000) & (deta>3.5) )
+
+    # "VBF0.98>tagger>0.95": (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.98>tagger>0.955": (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.98>tagger>0.96": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.98>tagger>0.965": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.98>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.98>tagger>0.975": (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.98) & ( (mjj>1000) & (deta>3.5) )
+
+    # "VBF0.975>tagger>0.95": (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.975) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.975>tagger>0.955": (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.975) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.975>tagger>0.96": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.975) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.975>tagger>0.965": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.975) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.975>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.975) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.975>tagger>0.975": (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.975) & ( (mjj>1000) & (deta>3.5) )
+
+    # "VBF0.970>tagger>0.95": (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.970) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.970>tagger>0.955": (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.970) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.970>tagger>0.96": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.970) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.970>tagger>0.965": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.970) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.970>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.970) & ( (mjj>1000) & (deta>3.5) )
+    # "VBF0.970>tagger>0.975": (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.970) & ( (mjj>1000) & (deta>3.5) )
+
+    # "ggFtagger>0.95": (fj_ParT_score_finetuned>0.95) &  ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.955": (fj_ParT_score_finetuned>0.95) &  ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.96": (fj_ParT_score_finetuned>0.96) &  ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.965": (fj_ParT_score_finetuned>0.965) &  ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.97": (fj_ParT_score_finetuned>0.97) &  ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.975": (fj_ParT_score_finetuned>0.975) &  ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.98": (fj_ParT_score_finetuned>0.98) &  ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.985": (fj_ParT_score_finetuned>0.985) &  ( (mjj<1000) | (deta<3.5) )
+
+    # "ggF0.985>tagger>0.95": (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.955": (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.96": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.965": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.975": (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.985>tagger>0.98": (fj_ParT_score_finetuned>0.98) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) )
+
+    # "ggF0.98>tagger>0.95": (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.955": (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.96": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.965": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.98>tagger>0.975": (fj_ParT_score_finetuned>0.975) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+
+    # "ggF0.975>tagger>0.95": (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.975) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.975>tagger>0.955": (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.975) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.975>tagger>0.96": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.975) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.975>tagger>0.965": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.975) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.975>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.975) & ( (mjj<1000) | (deta<3.5) )
+
+    # "ggF0.97>tagger>0.95": (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.97) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.97>tagger>0.955": (fj_ParT_score_finetuned>0.955) & (fj_ParT_score_finetuned<0.97) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.97>tagger>0.96": (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.97) & ( (mjj<1000) | (deta<3.5) )
+    # "ggF0.97>tagger>0.965": (fj_ParT_score_finetuned>0.965) & (fj_ParT_score_finetuned<0.97) & ( (mjj<1000) | (deta<3.5) )
+    # ############# v12: END
+
+
+    # # ############# v13: START
+    # "VBFtagger>0.98": (fj_ParT_score_finetuned>0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "0.98>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98)
+
+    # "ggF0.98>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) )
+
+    # "ggFtagger>0.98": (fj_ParT_score_finetuned>0.98) &  ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.98pt300to450": (fj_ParT_score_finetuned>0.98) &  ( (mjj<1000) | (deta<3.5) ) & (fj_pt<450)
+    # "ggFtagger>0.98pt450toInf": (fj_ParT_score_finetuned>0.98) &  ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450)
+    # "ggF0.98>tagger>0.97pt300to450": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt<450)
+    # "ggF0.98>tagger>0.97pt450toInf": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450)
+
+    # "ggFtagger>0.985": (fj_ParT_score_finetuned>0.985) &  ( (mjj<1000) | (deta<3.5) )
+    # "ggFtagger>0.985pt300to450": (fj_ParT_score_finetuned>0.985) &  ( (mjj<1000) | (deta<3.5) ) & (fj_pt<450)
+    # "ggFtagger>0.985pt450toInf": (fj_ParT_score_finetuned>0.985) &  ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450)
+    # "ggF0.985>tagger>0.97pt300to450": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt<450)
+    # "ggF0.985>tagger>0.97pt450toInf": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.985) & ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450)
+    # # ############# v13: END
+
+
+    # ############# v14: START
+    # "ftagger>0.9998": (fj_ParT_score_finetuned>0.9998)
+    # "ftagger>0.9995": (fj_ParT_score_finetuned>0.9995)
+    # "ftagger>0.9992": (fj_ParT_score_finetuned>0.9992)
+    # "ftagger>0.999": (fj_ParT_score_finetuned>0.999)
+    # "ftagger>0.995": (fj_ParT_score_finetuned>0.995)
+    # "ftagger>0.99": (fj_ParT_score_finetuned>0.99)
+    # "ftagger>0.985": (fj_ParT_score_finetuned>0.985)
+    # "ftagger>0.98": (fj_ParT_score_finetuned>0.98)
+    # "ftagger>0.975": (fj_ParT_score_finetuned>0.975)
+    # "ftagger>0.97": (fj_ParT_score_finetuned>0.97)
+    # "ftagger>0.965": (fj_ParT_score_finetuned>0.965)
+    # "ftagger>0.96": (fj_ParT_score_finetuned>0.96)
+    # "ftagger>0.955": (fj_ParT_score_finetuned>0.955)
+    # "ftagger>0.95": (fj_ParT_score_finetuned>0.95)
+    # "ftagger>0.94": (fj_ParT_score_finetuned>0.94)
+    # "ftagger>0.93": (fj_ParT_score_finetuned>0.93)
+    # "ftagger>0.92": (fj_ParT_score_finetuned>0.92)
+    # "ftagger>0.91": (fj_ParT_score_finetuned>0.91)
+    # "ftagger>0.90": (fj_ParT_score_finetuned>0.90)
+
+    # "tagger>0.9998": (fj_ParT_score>0.9998)
+    # "tagger>0.9995": (fj_ParT_score>0.9995)
+    # "tagger>0.9992": (fj_ParT_score>0.9992)
+    # "tagger>0.999": (fj_ParT_score>0.999)
+    # "tagger>0.995": (fj_ParT_score>0.995)
+    # "tagger>0.99": (fj_ParT_score>0.99)
+    # "tagger>0.985": (fj_ParT_score>0.985)
+    # "tagger>0.98": (fj_ParT_score>0.98)
+    # "tagger>0.975": (fj_ParT_score>0.975)
+    # "tagger>0.97": (fj_ParT_score>0.97)
+    # "tagger>0.965": (fj_ParT_score>0.965)
+    # "tagger>0.96": (fj_ParT_score>0.96)
+    # "tagger>0.955": (fj_ParT_score>0.955)
+    # "tagger>0.95": (fj_ParT_score>0.95)
+    # "tagger>0.94": (fj_ParT_score>0.94)
+    # "tagger>0.93": (fj_ParT_score>0.93)
+    # "tagger>0.92": (fj_ParT_score>0.92)
+    # "tagger>0.91": (fj_ParT_score>0.91)
+    # "tagger>0.90": (fj_ParT_score>0.90)
+    # ############# v14: END
+
+
+    ############# v15: START
+
+    # "VBFtagger>0.98": (fj_ParT_score_finetuned>0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "ggFtagger>0.98": (fj_ParT_score_finetuned>0.98) &  ( (mjj<1000) | (deta<3.5) )
+    # "0.98>tagger>0.97":  (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98)
+
+    # "0.97>tagger>0.96":  (fj_ParT_score_finetuned>0.96) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.95":  (fj_ParT_score_finetuned>0.95) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.94":  (fj_ParT_score_finetuned>0.94) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.93":  (fj_ParT_score_finetuned>0.93) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.92":  (fj_ParT_score_finetuned>0.92) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.91":  (fj_ParT_score_finetuned>0.91) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.90":  (fj_ParT_score_finetuned>0.90) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.89":  (fj_ParT_score_finetuned>0.89) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.88":  (fj_ParT_score_finetuned>0.88) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.87":  (fj_ParT_score_finetuned>0.87) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.86":  (fj_ParT_score_finetuned>0.86) & (fj_ParT_score_finetuned<0.97)
+    # "0.97>tagger>0.85":  (fj_ParT_score_finetuned>0.85) & (fj_ParT_score_finetuned<0.97)
+
+    ############# v15: END
+
+
+    # ############# v16: START
+
+    # "VBFtagger>0.98": (fj_ParT_score_finetuned>0.98) & ( (mjj>1000) & (deta>3.5) )
+    # "ggFtagger>0.98pt300to450": (fj_ParT_score_finetuned>0.98) &  ( (mjj<1000) | (deta<3.5) ) & (fj_pt<450)
+    # "ggFtagger>0.98pt450toInf": (fj_ParT_score_finetuned>0.98) &  ( (mjj<1000) | (deta<3.5) ) & (fj_pt>450)
+
+    # "0.98>tagger>0.97": (fj_ParT_score_finetuned>0.97) & (fj_ParT_score_finetuned<0.98)
+
+    # ############# v16: END
+
 
 samples_dir:
-    "2018": ../eos/postprocessOct5_hidNeurons_2018
-    "2017": ../eos/postprocessOct9_hidNeurons_2017
-    "2016APV": ../eos/postprocessOct13_hidNeurons_2016APV
-    "2016": ../eos/postprocessOct13_hidNeurons_2016
+    "2018": ../eos/postprocessNov12_2018
+    "2017": ../eos/postprocessNov12_2017
+    "2016APV": ../eos/postprocessNov12_2016APV
+    "2016": ../eos/postprocessNov12_2016
 
 model_path: ../eos/model.onnx

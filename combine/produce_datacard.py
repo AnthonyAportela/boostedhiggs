@@ -40,6 +40,7 @@ def main(args):
 if __name__ == "__main__":
     # e.g.
     # python produce_datacard.py --years 2016,2016APV,2017,2018 --channels ele,mu --outdir templates/v1
+    # python diffNuisances.py fitDiagnosticsBlinded.root --all
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--years", dest="years", default="2017", help="years separated by commas")

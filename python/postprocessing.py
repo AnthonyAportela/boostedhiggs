@@ -74,6 +74,7 @@ def main(args):
 if __name__ == "__main__":
     # e.g.
     # noqa: python postprocessing.py --year 2017 --channels ele,mu --samples_dir ../eos/Oct5_hidNeurons_2017 --out_dir ../eos/postprocessOct5_hidNeurons_2018
+    # noqa: python postprocessing.py --year 2018 --channels ele,mu --samples_dir ../eos/Nov12_2018 --out_dir ../eos/postprocessNov12_2018
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--year", dest="year", default="2018", help="year")

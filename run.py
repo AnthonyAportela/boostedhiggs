@@ -144,7 +144,9 @@ def main(args):
             year=args.year, label=args.label, inference=args.inference, output_location=f"./outfiles/{job_name}"
         )
     else:
-        from boostedhiggs.trigger_efficiencies_processor import TriggerEfficienciesProcessor
+        from boostedhiggs.trigger_efficiencies_processor import (
+            TriggerEfficienciesProcessor,
+        )
 
         p = TriggerEfficienciesProcessor(year=args.year)
 
