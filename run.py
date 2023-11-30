@@ -109,6 +109,19 @@ def main(args):
             output_location="./outfiles" + job_name,
             region=args.region,
         )
+
+    elif args.processor == "top":
+        from boostedhiggs.topprocessor import TopProcessor
+
+        p = TopProcessor(
+            year=year,
+            yearmod=yearmod,
+            channels=channels,
+            inference=args.inference,
+            systematics=args.systematics,
+            output_location="./outfiles" + job_name,
+            region=args.region,
+        )
     
     elif args.processor == "vh":
         from boostedhiggs.vhprocessor import vhProcessor
@@ -192,7 +205,7 @@ def main(args):
     print(f"Metrics: {metrics}")
     print(f"Finished in {elapsed:.1f}s")
 
-    if args.processor == "hww" or args.processor == "lp" or args.processor == "vh" or args.processor == "zll":
+    if args.processor == "hww" or args.processor == "top" or args.processor == "lp" or args.processor == "vh" or args.processor == "zll":
         # dump to pickle
         filehandler = open("./outfiles/" + job_name + ".pkl", "wb")
         pkl.dump(out, filehandler)
