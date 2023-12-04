@@ -236,12 +236,6 @@ class TopProcessor(processor.ProcessorABC):
 
         candidatelep = ak.firsts(goodleptons)  # pick highest pt
 
-        candidatelep_p4 = build_p4(candidatelep)  # build p4 for candidate lepton
-        lep_reliso = (
-            candidatelep.pfRelIso04_all if hasattr(candidatelep, "pfRelIso04_all") else candidatelep.pfRelIso03_all
-        )  # reliso for candidate lepton
-        lep_miso = candidatelep.miniPFRelIso_all  # miniso for candidate lepton
-
         # ak4 jets
         ak4_jet_selector_no_btag = (
             (events.Jet.pt > 30) & (abs(events.Jet.eta) < 5.0) & events.Jet.isTight & (events.Jet.puId > 0)
@@ -260,60 +254,72 @@ class TopProcessor(processor.ProcessorABC):
         fatjets = events.FatJet
         fatjets["msdcorr"] = corrected_msoftdrop(fatjets)
 
-        good_fatjets = (fatjets.pt > 200) & (abs(fatjets.eta) < 2.5) & fatjets.isTight
+        good_fatjets = (fatjets.pt > 200) & (abs(fatjets.eta) < 2.5) & fatjets.isTight # kinematic cut
+        bjet_mask = (
+                        (ak.sum(fatjets.btagDeepB > btagWPs["deepCSV"][self._year]["T"], axis=1) == 2) | \
+                        (ak.sum(goodjets.btagDeepB > btagWPs["deepCSV"][self._year]["T"], axis=1) == 2)
+                    ) | \
+                    (
+                        (ak.sum(fatjets.btagDeepB > btagWPs["deepCSV"][self._year]["T"], axis=1) == 1) & \
+                        (ak.sum(goodjets.btagDeepB > btagWPs["deepCSV"][self._year]["T"], axis=1) == 1)
+                    )
+
+        good_fatjets = good_fatjets & bjet_mask
+        
         good_fatjets = fatjets[good_fatjets]  # select good fatjets
         good_fatjets = good_fatjets[ak.argsort(good_fatjets.pt, ascending=False)]  # sort them by pt
 
+              
+        first_fatjet = ak.firsts(good_fatjets[:,0:1]) # keep the first and second highest pt jets
+        second_fatjet = ak.firsts(good_fatjets[:,1:2])
+
+        two_fatjets = ~ak.is_none(first_fatjet) & ~ak.is_none(second_fatjet) # only keep events with twp jets
+        one_lep = ~ak.is_none(candidatelep)
+
+        all_cond = two_fatjets & one_lep
+        
+        first_fatjet = first_fatjet.mask[all_cond]        
+        second_fatjet = second_fatjet.mask[all_cond]
+        candidatelep = candidatelep.mask[all_cond]
 
 
-        # choose candidate fatjet
-        fj_idx_lep = ak.argmin(good_fatjets.delta_r(candidatelep_p4), axis=1, keepdims=True)
-        candidatefj = ak.firsts(good_fatjets[fj_idx_lep])
+        delta_r_first = first_fatjet.delta_r(candidatelep)
+        delta_r_second = second_fatjet.delta_r(candidatelep)
 
-        # b-jets
-        # dphi_jet_lepfj = abs(goodjets.delta_phi(candidatefj))
-        dr_jet_lepfj = goodjets.delta_r(candidatefj)
-        ak4_outside_ak8 = goodjets[dr_jet_lepfj > 0.8]
 
-        n_bjets_L = ak.sum(ak4_outside_ak8.btagDeepFlavB > btagWPs["deepJet"][self._year]["L"], axis=1)
-        n_bjets_M = ak.sum(ak4_outside_ak8.btagDeepFlavB > btagWPs["deepJet"][self._year]["M"], axis=1)
-        n_bjets_T = ak.sum(ak4_outside_ak8.btagDeepFlavB > btagWPs["deepJet"][self._year]["T"], axis=1)
-        n_bjetsDeepCSV_L = ak.sum(ak4_outside_ak8.btagDeepB > btagWPs["deepCSV"][self._year]["L"], axis=1)
-        n_bjetsDeepCSV_M = ak.sum(ak4_outside_ak8.btagDeepB > btagWPs["deepCSV"][self._year]["M"], axis=1)
-        n_bjetsDeepCSV_T = ak.sum(ak4_outside_ak8.btagDeepB > btagWPs["deepCSV"][self._year]["T"], axis=1)
+        closer_fatjet = delta_r_first < delta_r_second
+        lep_fatjet = ak.where(closer_fatjet, first_fatjet, second_fatjet)
+        lep_fatjet_dR = ak.where(closer_fatjet, delta_r_first, delta_r_second)
+        
+        had_fatjet = ak.where(closer_fatjet, second_fatjet, first_fatjet)
 
-        # delta R between AK8 jet and lepton
-        lep_fj_dr = candidatefj.delta_r(candidatelep_p4)
-
-        # VBF variables
-        jet1 = ak4_outside_ak8[:, 0:1]
-        jet2 = ak4_outside_ak8[:, 1:2]
-        deta = abs(ak.firsts(jet1).eta - ak.firsts(jet2).eta)
-        mjj = (ak.firsts(jet1) + ak.firsts(jet2)).mass
-
+        
         variables = {
-            "fj_msoftdrop": candidatefj.msdcorr,
-            "lep_pt": candidatelep.pt,
-            "lep_isolation": lep_reliso,
-            "lep_misolation": lep_miso,
-            "lep_fj_dr": lep_fj_dr,
-            "deta": deta,
-            "mjj": mjj,
-            "n_bjets_L": n_bjets_L,
-            "n_bjets_M": n_bjets_M,
-            "n_bjets_T": n_bjets_T,
-            "n_bjetsDeepCSV_L": n_bjetsDeepCSV_L,
-            "n_bjetsDeepCSV_M": n_bjetsDeepCSV_M,
-            "n_bjetsDeepCSV_T": n_bjetsDeepCSV_T,
-            "fj_lsf3": candidatefj.lsf3,
+            'lep_fatjet_dR': lep_fatjet_dR
         }
 
-        fatjetvars = {
-            "fatjetPt": candidatefj.pt,
-            "fatjetEta": candidatefj.eta,
-            "fatjetPhi": candidatefj.phi,
-            "fatjetMass": candidatefj.msdcorr,
+        lep_fatjetvars = {
+            "lep_fatjetPt": lep_fatjet.pt,
+            "lep_fatjetEta": lep_fatjet.eta,
+            "lep_fatjetPhi": lep_fatjet.phi,
+            "lep_fatjetMass": lep_fatjet.msdcorr,
         }
+
+        had_fatjetvars = {
+            "had_fatjetPt": had_fatjet.pt,
+            "had_fatjetEta": had_fatjet.eta,
+            "had_fatjetPhi": had_fatjet.phi,
+            "had_fatjetMass": had_fatjet.msdcorr,
+        }
+
+        lepvars = {
+            "lepPt": candidatelep.pt,
+            "lepEta": candidatelep.eta,
+            "lepPhi": candidatelep.phi,
+            "lepMass": candidatelep.mass,
+        }
+
+        variables = {**variables, **lep_fatjetvars, **had_fatjetvars, **lepvars}
 
         """
         HEM issue: Hadronic calorimeter Endcaps Minus (HEM) issue.
@@ -350,11 +356,8 @@ class TopProcessor(processor.ProcessorABC):
             self.add_selection(name="Trigger", sel=trigger[ch], channel=ch)
 
         # apply selections
-        # self.add_selection(name="METFilters", sel=metfilters)
-        # self.add_selection(name="LepKin", sel=(candidatelep.pt > 30), channel="mu")
-        # self.add_selection(name="LepKin", sel=(candidatelep.pt > 40), channel="ele")
-        # self.add_selection(name="FatJetKin", sel=(candidatefj.pt > 200) & (ht > 200))
-        # self.add_selection(name="dRFatJetLepOverlap", sel=(lep_fj_dr > 0.03))
+
+        self.add_selection(name="LepMatch", sel=(lep_fatjet_dR<.8))
         
         self.add_selection(
             name="OneLep",
@@ -376,7 +379,6 @@ class TopProcessor(processor.ProcessorABC):
             )
 
         
-        # self.add_selection(name="dRFatJetLep08", sel=(lep_fj_dr < 0.8))
 
         # gen-level matching
 
