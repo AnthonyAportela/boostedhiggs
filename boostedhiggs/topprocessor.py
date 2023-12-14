@@ -255,47 +255,21 @@ class TopProcessor(processor.ProcessorABC):
         fatjets["msdcorr"] = corrected_msoftdrop(fatjets)
 
         good_fatjets = (fatjets.pt > 200) & (abs(fatjets.eta) < 2.5) & fatjets.isTight # kinematic cut
-        bjet_mask = (
-                        (ak.sum(fatjets.btagDeepB > btagWPs["deepCSV"][self._year]["T"], axis=1) == 2) | \
-                        (ak.sum(goodjets.btagDeepB > btagWPs["deepCSV"][self._year]["T"], axis=1) == 2)
-                    ) | \
-                    (
-                        (ak.sum(fatjets.btagDeepB > btagWPs["deepCSV"][self._year]["T"], axis=1) == 1) & \
-                        (ak.sum(goodjets.btagDeepB > btagWPs["deepCSV"][self._year]["T"], axis=1) == 1)
-                    )
-
-        good_fatjets = good_fatjets & bjet_mask
         
         good_fatjets = fatjets[good_fatjets]  # select good fatjets
         good_fatjets = good_fatjets[ak.argsort(good_fatjets.pt, ascending=False)]  # sort them by pt
 
-              
-        first_fatjet = ak.firsts(good_fatjets[:,0:1]) # keep the first and second highest pt jets
-        second_fatjet = ak.firsts(good_fatjets[:,1:2])
+        had_fatjet = ak.firsts(good_fatjets[:,0:1]) # keep the first and second highest pt fatjets
+        lep_fatjet = ak.firsts(good_fatjets[:,1:2])
 
-        two_fatjets = ~ak.is_none(first_fatjet) & ~ak.is_none(second_fatjet) # only keep events with twp jets
-        one_lep = ~ak.is_none(candidatelep)
+        had_subjet1 = ak.firsts(had_fatjet.subjets[:,0:1]) # keep the first and second highest pt subjes of had fatjet
+        had_subjet2 = ak.firsts(had_fatjet.subjets[:,1:2])
 
-        all_cond = two_fatjets & one_lep
-        
-        first_fatjet = first_fatjet.mask[all_cond]        
-        second_fatjet = second_fatjet.mask[all_cond]
-        candidatelep = candidatelep.mask[all_cond]
-
-
-        delta_r_first = first_fatjet.delta_r(candidatelep)
-        delta_r_second = second_fatjet.delta_r(candidatelep)
-
-
-        closer_fatjet = delta_r_first < delta_r_second
-        lep_fatjet = ak.where(closer_fatjet, first_fatjet, second_fatjet)
-        lep_fatjet_dR = ak.where(closer_fatjet, delta_r_first, delta_r_second)
-        
-        had_fatjet = ak.where(closer_fatjet, second_fatjet, first_fatjet)
-
+        which_bjet = had_subjet1.btagDeepB > had_subjet2.btagDeepB
+        had_subjet = ak.where(which_bjet, had_subjet1, had_subjet2)
         
         variables = {
-            'lep_fatjet_dR': lep_fatjet_dR
+            'MET': events.MET.pt,
         }
 
         lep_fatjetvars = {
@@ -310,6 +284,15 @@ class TopProcessor(processor.ProcessorABC):
             "had_fatjetEta": had_fatjet.eta,
             "had_fatjetPhi": had_fatjet.phi,
             "had_fatjetMass": had_fatjet.msdcorr,
+            'tau32': had_fatjet.tau3/had_fatjet.tau2
+        }
+
+        had_subjetvars = {
+            "had_subjetPt": had_subjet.pt,
+            "had_subjetEta": had_subjet.eta,
+            "had_subjetPhi": had_subjet.phi,
+            "had_subjetMass": had_subjet.mass,
+            "had_subjetBscore": had_subjet.btagDeepB,
         }
 
         lepvars = {
@@ -319,7 +302,7 @@ class TopProcessor(processor.ProcessorABC):
             "lepMass": candidatelep.mass,
         }
 
-        variables = {**variables, **lep_fatjetvars, **had_fatjetvars, **lepvars}
+        variables = {**variables, **lep_fatjetvars, **had_fatjetvars, **lepvars, **had_subjetvars}
 
         """
         HEM issue: Hadronic calorimeter Endcaps Minus (HEM) issue.
@@ -356,27 +339,31 @@ class TopProcessor(processor.ProcessorABC):
             self.add_selection(name="Trigger", sel=trigger[ch], channel=ch)
 
         # apply selections
-
-        self.add_selection(name="LepMatch", sel=(lep_fatjet_dR<.8))
+        # print(len(had_fatjet.msdcorr))
+        # self.add_selection(name='bMatch', sel=bjet_mask)
+        # self.add_selection(name='twoFatJet', sel=two_fatjets)
+        # self.add_selection(name='oneLep', sel=one_lep)
+        # self.add_selection(name="LepMatch", sel=(lep_fatjet_dR<.8))
+        # self.add_selection(name="HadMatch", sel=(150 < had_fatjet.msdcorr) & (had_fatjet.msdcorr < 220))
         
-        self.add_selection(
-            name="OneLep",
-            sel=(n_good_muons == 1)
-            & (n_good_electrons == 0)
-            & (n_loose_electrons == 0)
-            & ~ak.any(loose_muons & ~good_muons, 1)
-            & (n_loose_taus_mu == 0),
-            channel="mu",
-        )
-        self.add_selection(
-            name="OneLep",
-            sel=(n_good_muons == 0)
-            & (n_loose_muons == 0)
-            & (n_good_electrons == 1)
-            & ~ak.any(loose_electrons & ~good_electrons, 1)
-            & (n_loose_taus_ele == 0),
-            channel="ele",
-            )
+        # self.add_selection(
+        #     name="OneLep",
+        #     sel=(n_good_muons == 1)
+        #     & (n_good_electrons == 0)
+        #     & (n_loose_electrons == 0)
+        #     & ~ak.any(loose_muons & ~good_muons, 1)
+        #     & (n_loose_taus_mu == 0),
+        #     channel="mu",
+        # )
+        # self.add_selection(
+        #     name="OneLep",
+        #     sel=(n_good_muons == 0)
+        #     & (n_loose_muons == 0)
+        #     & (n_good_electrons == 1)
+        #     & ~ak.any(loose_electrons & ~good_electrons, 1)
+        #     & (n_loose_taus_ele == 0),
+        #     channel="ele",
+        #     )
 
         
 
