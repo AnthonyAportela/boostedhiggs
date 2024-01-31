@@ -23,6 +23,11 @@ def get_subfolders(parent):
 
 folders_to_index = {
     "v2_2": [
+        ##
+        "/store/user/lpcpfnano/cmantill/v2_3/2016/JetHT2016",
+        "/store/user/lpcpfnano/cmantill/v2_3/2017/JetHT2017",
+        "/store/user/lpcpfnano/cmantill/v2_3/2018/JetHT2018",
+        ##
         "/store/user/lpcpfnano/dryu/v2_2_1/2016/SingleMu2016",
         "/store/user/lpcpfnano/dryu/v2_2_1/2017/SingleMu2017",
         "/store/user/lpcpfnano/dryu/v2_2/2018/SingleMu2018",
@@ -31,38 +36,20 @@ folders_to_index = {
         "/store/user/lpcpfnano/jekrupa/v2_2/2017/JetHT2017",
         "/store/user/lpcpfnano/jekrupa/v2_2/2018/JetHT2018",
         ##
-        "/store/user/lpcpfnano/cmantill/v2_2/2016/MET2016",
-        "/store/user/lpcpfnano/cmantill/v2_2/2017/MET2017",
-        "/store/user/lpcpfnano/cmantill/v2_2/2018/MET2018",
-        ##
         "/store/user/lpcpfnano/drankin/v2_2/2016/SingleElectron2016",
         "/store/user/lpcpfnano/drankin/v2_2/2017/SingleElectron2017",
         "/store/user/lpcpfnano/drankin/v2_2/2018/EGamma2018",
-        ##
-        "/store/user/lpcpfnano/jiyoo/v2_3/2016/DoubleEG2016",
-        "/store/user/lpcpfnano/jiyoo/v2_3/2017/DoubleEG2017",
-        "/store/user/lpcpfnano/jiyoo/v2_3/2018/DoubleEG2018",
-        ##
-        "/store/user/lpcpfnano/jiyoo/v2_3/2016/DoubleMu2016",
-        "/store/user/lpcpfnano/jiyoo/v2_3/2017/DoubleMu2017",
-        "/store/user/lpcpfnano/jiyoo/v2_3/2018/DoubleMu2018",
         ##
         "/store/user/lpcpfnano/jiyoo/v2_3/2016/MuonEG2016",
         "/store/user/lpcpfnano/jiyoo/v2_3/2017/MuonEG2017",
         "/store/user/lpcpfnano/jiyoo/v2_3/2018/MuonEG2018",
         ##
-        "/store/user/lpcpfnano/jekrupa/v2_2/2016APV/TTbar",
-        "/store/user/lpcpfnano/jekrupa/v2_2/2016/TTbar",
-        "/store/user/lpcpfnano/jekrupa/v2_2/2017/TTbar",
-        "/store/user/lpcpfnano/emoreno/v2_2/2018/TTbar",
-        "/store/user/lpcpfnano/drankin/v2_2/2016/TTbar",
-        "/store/user/lpcpfnano/drankin/v2_2/2016APV/TTbar",
-        "/store/user/lpcpfnano/drankin/v2_2/2017/TTbar",
-        "/store/user/lpcpfnano/drankin/v2_2/2018/TTbar",
-        "/store/user/lpcpfnano/yihan/v2_2/2016/TTbar",
-        "/store/user/lpcpfnano/yihan/v2_2/2016APV/TTbar",
-        "/store/user/lpcpfnano/yihan/v2_2/2017/TTbar",
-        "/store/user/lpcpfnano/yihan/v2_2/2018/TTbar",
+        "/store/user/lpcpfnano/cmantill/v2_3/2016APV/TTbar/",
+        "/store/user/lpcpfnano/cmantill/v2_3/2016/TTbar/",
+        "/store/user/lpcpfnano/rkansal/v2_3/2017/TTbar/",
+        "/store/user/lpcpfnano/cmantill/v2_3/2018/TTbar/",
+        ##
+        "/store/user/lpcpfnano/cmantill/v2_3/2017/TTV",
         ##
         "/store/user/lpcpfnano/yihan/v2_2/2016/QCD",
         "/store/user/lpcpfnano/yihan/v2_2/2016APV/QCD",
@@ -90,72 +77,49 @@ folders_to_index = {
         "/store/user/lpcpfnano/drankin/v2_2/2017/SingleTop/",
         "/store/user/lpcpfnano/drankin/v2_2/2018/SingleTop/",
         ##
-        "/store/user/lpcpfnano/drankin/v2_2/2016/WJetsToLNu",
-        "/store/user/lpcpfnano/drankin/v2_2/2016APV/WJetsToLNu",
-        "/store/user/lpcpfnano/drankin/v2_2/2017/WJetsToLNu",
-        "/store/user/lpcpfnano/drankin/v2_2/2018/WJetsToLNu",
+        "/store/user/lpcpfnano/jdickins/v2_3/2016/WJetsToLNu",
+        "/store/user/lpcpfnano/jdickins/v2_3/2016APV/WJetsToLNu",
+        "/store/user/lpcpfnano/jdickins/v2_3/2017/WJetsToLNu",
+        "/store/user/lpcpfnano/jdickins/v2_3/2018/WJetsToLNu",
+        "/store/user/lpcpfnano/jiyoo/v2_3/2016/WJetsToLNu",
+        "/store/user/lpcpfnano/jiyoo/v2_3/2016APV/WJetsToLNu",
+        # "/store/user/lpcpfnano/jiyoo/v2_3/2017/WJetsToLNu",
+        "/store/user/lpcpfnano/jiyoo/v2_3/2018/WJetsToLNu",
+        # WJets NLO (missing other years)
+        "/store/user/lpcpfnano/jiyoo/v2_3/2018/WJetsToLNu_NLO",
         ##
-        "/store/user/lpcpfnano/cmantill/v2_2/2016/DYJetsToLL",
-        "/store/user/lpcpfnano/cmantill/v2_2/2016APV/DYJetsToLL",
-        "/store/user/lpcpfnano/cmantill/v2_2/2017/DYJetsToLL",
-        "/store/user/lpcpfnano/cmantill/v2_2/2018/DYJetsToLL",
         "/store/user/lpcpfnano/cmantill/v2_3/2016/DYJetsToLL",
         "/store/user/lpcpfnano/cmantill/v2_3/2016APV/DYJetsToLL",
         "/store/user/lpcpfnano/cmantill/v2_3/2017/DYJetsToLL",
         "/store/user/lpcpfnano/cmantill/v2_3/2018/DYJetsToLL",
+        "/store/user/lpcpfnano/jiyoo/v2_3/2018/DYJetsToLL/",
         ##
-        "/store/user/lpcpfnano/jdickins/v2_2/2016/Diboson/",
-        "/store/user/lpcpfnano/jdickins/v2_2/2016APV/Diboson/",
-        "/store/user/lpcpfnano/jdickins/v2_2/2017/Diboson/",
-        "/store/user/lpcpfnano/jdickins/v2_2/2018/Diboson/",
+        "/store/user/lpcpfnano/rkansal/v2_3/2016/Diboson/",
+        "/store/user/lpcpfnano/rkansal/v2_3/2016APV/Diboson/",
+        "/store/user/lpcpfnano/rkansal/v2_3/2017/Diboson/",
+        "/store/user/lpcpfnano/rkansal/v2_3/2018/Diboson/",
         ##
-        "/store/user/lpcpfnano/jdickins/v2_2/2016/DibosonNLO/",
-        "/store/user/lpcpfnano/jdickins/v2_2/2016APV/DibosonNLO/",
-        "/store/user/lpcpfnano/jdickins/v2_2/2017/DibosonNLO/",
-        "/store/user/lpcpfnano/jdickins/v2_2/2018/DibosonNLO/",
-        ##
-        "/store/user/lpcpfnano/cmantill/v2_2/2016/HWW",
-        "/store/user/lpcpfnano/cmantill/v2_3/2016/HWW",
-        "/store/user/lpcpfnano/cmantill/v2_2/2016APV/HWW",
-        "/store/user/lpcpfnano/cmantill/v2_3/2016APV/HWW",
         "/store/user/lpcpfnano/cmantill/v2_2/2017/HWW",
         "/store/user/lpcpfnano/cmantill/v2_2/2017/HWWPrivate",
+        "/store/user/lpcpfnano/cmantill/v2_3/2016/HWW",
+        "/store/user/lpcpfnano/cmantill/v2_3/2016APV/HWW",
         "/store/user/lpcpfnano/cmantill/v2_3/2017/HWW",
-        "/store/user/lpcpfnano/cmantill/v2_2/2018/HWW",
         "/store/user/lpcpfnano/cmantill/v2_3/2018/HWW",
         ##
-        "/store/user/lpcpfnano/drankin/v2_2/2016/HTT/",
-        "/store/user/lpcpfnano/drankin/v2_2/2016APV/HTT/",
-        "/store/user/lpcpfnano/drankin/v2_2/2017/HTT/",
-        "/store/user/lpcpfnano/drankin/v2_2/2018/HTT/",
         "/store/user/lpcpfnano/cmantill/v2_2/2016/HTT",
         "/store/user/lpcpfnano/cmantill/v2_2/2016APV/HTT",
         "/store/user/lpcpfnano/cmantill/v2_2/2017/HTT",
         "/store/user/lpcpfnano/cmantill/v2_2/2018/HTT",
-    ],
-    "v2_4": [
-        "/store/user/lpcpfnano/cmantill/v2_4/2017/HWW",
-        "/store/user/lpcpfnano/cmantill/v2_4/2017/QCD",
-        "/store/user/lpcpfnano/cmantill/v2_4/2017/TTbar",
+        ##
+        "/store/user/lpcpfnano/jdickins/v2_2/2016/EWKV",
+        "/store/user/lpcpfnano/jdickins/v2_2/2016APV/EWKV",
+        "/store/user/lpcpfnano/jdickins/v2_2/2017/EWKV",
+        "/store/user/lpcpfnano/jdickins/v2_2/2018/EWKV",
     ],
 }
 
 # samples to exclude (needs / at the end)
-# since HWW inlude both v2_3 and v2_2 - need to make sure we do not duplicate
-samples_to_exclude = [
-    ["2017", "v2_2", "HWminusJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2017", "v2_2", "HWplusJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2017", "v2_2", "HZJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2018", "v2_2", "HWplusJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2018", "v2_2", "HZJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2018", "v2_3", "ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8/"],
-    ["2016", "v2_2", "HZJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2016", "v2_3", "HWplusJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2016", "v2_3", "HWminusJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2016APV", "v2_2", "HZJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2016APV", "v2_2", "HWplusJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-    ["2016APV", "v2_2", "HWminusJ_HToWW_M-125_TuneCP5_13TeV-powheg-jhugen727-pythia8/"],
-]
+samples_to_exclude = []
 index_APV = {}
 
 # Data path:
