@@ -28,7 +28,8 @@ from boostedhiggs.corrections import (
     get_jec_jets,
     met_factory,
 )
-from boostedhiggs.utils import match_H, match_Top, match_V
+#from boostedhiggs.utils import match_H, match_Top, match_V
+from boostedhiggs.tagger_gen_matching import match_Top
 
 from .run_tagger_inference import runInferenceTriton
 
@@ -258,9 +259,35 @@ class TopProcessor(processor.ProcessorABC):
         
         good_fatjets = fatjets[good_fatjets]  # select good fatjets
         good_fatjets = good_fatjets[ak.argsort(good_fatjets.pt, ascending=False)]  # sort them by pt
-
+        # good_fatjets = good_fatjets[ak.argsort(good_fatjets.tau3/good_fatjets.tau2, ascending=True)]  # sort them by tau32
+        # good_fatjets = good_fatjets[ak.argsort(good_fatjets.particleNet_TvsQCD, ascending=False)] # sort them by top vs qcd
+        fj_idx_lep = ak.argmin(good_fatjets.delta_r(build_p4(candidatelep)), axis=1, keepdims=True)
+        
         had_fatjet = ak.firsts(good_fatjets[:,0:1]) # keep the first and second highest pt fatjets
-        lep_fatjet = ak.firsts(good_fatjets[:,1:2])
+        lep_fatjet = ak.firsts(good_fatjets[:,1:2]) 
+        
+        """
+        The assumption being that the second highest pt fatjet should be leptonic, how true is this?
+        Is the gen level top produced lepton close to my "leptonic" fatjet?
+
+        [[Top, Top],[Top, Top],...,[Top, Top]]
+
+        daughters
+
+        [[[W,b],[W,b]], [[W,b],[W,b]], ..., [[W,b],[W,b]]]
+
+        filter for W
+
+        [[W,W], [W,W], ..., [W,W]]
+
+        daughters
+
+        [[[q,q],[lep,nu]], [[q,q],[lep,nu]], ..., [[q,q],[lep,nu]]]
+
+        filder for leading lepton
+
+        [lep, lep, ..., lep]
+        """
 
         had_subjet1 = ak.firsts(had_fatjet.subjets[:,0:1]) # keep the first and second highest pt subjes of had fatjet
         had_subjet2 = ak.firsts(had_fatjet.subjets[:,1:2])
@@ -269,7 +296,8 @@ class TopProcessor(processor.ProcessorABC):
         had_subjet = ak.where(which_bjet, had_subjet1, had_subjet2)
         
         variables = {
-            'MET': events.MET.pt,
+            'METpt': events.MET.pt,
+            'METphi': events.MET.phi,
         }
 
         lep_fatjetvars = {
@@ -284,7 +312,7 @@ class TopProcessor(processor.ProcessorABC):
             "had_fatjetEta": had_fatjet.eta,
             "had_fatjetPhi": had_fatjet.phi,
             "had_fatjetMass": had_fatjet.msdcorr,
-            'tau32': had_fatjet.tau3/had_fatjet.tau2
+            'had_fatjetTau32': had_fatjet.tau3/had_fatjet.tau2
         }
 
         had_subjetvars = {
@@ -302,7 +330,9 @@ class TopProcessor(processor.ProcessorABC):
             "lepMass": candidatelep.mass,
         }
 
-        variables = {**variables, **lep_fatjetvars, **had_fatjetvars, **lepvars, **had_subjetvars}
+        genVars, _ = match_Top(events.GenPart, had_fatjet)
+
+        variables = {**variables, **lep_fatjetvars, **had_fatjetvars, **lepvars, **had_subjetvars, **genVars}
 
         """
         HEM issue: Hadronic calorimeter Endcaps Minus (HEM) issue.
@@ -339,12 +369,13 @@ class TopProcessor(processor.ProcessorABC):
             self.add_selection(name="Trigger", sel=trigger[ch], channel=ch)
 
         # apply selections
-        # print(len(had_fatjet.msdcorr))
-        # self.add_selection(name='bMatch', sel=bjet_mask)
-        # self.add_selection(name='twoFatJet', sel=two_fatjets)
-        # self.add_selection(name='oneLep', sel=one_lep)
-        # self.add_selection(name="LepMatch", sel=(lep_fatjet_dR<.8))
-        # self.add_selection(name="HadMatch", sel=(150 < had_fatjet.msdcorr) & (had_fatjet.msdcorr < 220))
+        
+        self.add_selection(name='had_fatjetPt > 450', sel=(had_fatjet.pt > 450)) #maybe raise to 450 GeV
+        self.add_selection(name='105 < had_fatjetMass < 210', sel=(105 < had_fatjet.msdcorr)&(had_fatjet.msdcorr < 210))
+        self.add_selection(name='had_fatjetTau32 < .52', sel=(had_fatjet.tau3/had_fatjet.tau2 < .52))
+        #### add dphi cut
+        
+        # self.add_selection(name='had_subjetBscore > 0.1355', sel=(had_subjet.btagDeepB > 0.1355))
         
         # self.add_selection(
         #     name="OneLep",
