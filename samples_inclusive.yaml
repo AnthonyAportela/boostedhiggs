@@ -230,3 +230,18 @@ mc_sf:
   - ZJetsToQQ_HT-400to600
   - ZJetsToQQ_HT-600to800
   - ZJetsToQQ_HT-800toInf
+mc_sf_small:
+  - TTTo2L2Nu
+  - TTToHadronic
+  - TTToSemiLeptonic
+  - QCD_Pt_120to170
+  - QCD_Pt_170to300
+  - QCD_Pt_300to470
+  - QCD_Pt_470to600
+  - QCD_Pt_600to800
+  - QCD_Pt_800to1000
+  - QCD_Pt_1000to1400
+  - QCD_Pt_1400to1800
+  - QCD_Pt_1800to2400
+  - QCD_Pt_2400to3200
+  - QCD_Pt_3200toInf

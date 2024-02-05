@@ -330,9 +330,11 @@ class TopProcessor(processor.ProcessorABC):
             "lepMass": candidatelep.mass,
         }
 
-        genVars, _ = match_Top(events.GenPart, had_fatjet)
-
-        variables = {**variables, **lep_fatjetvars, **had_fatjetvars, **lepvars, **had_subjetvars, **genVars}
+        if self.isMC:        
+            genVars, _ = match_Top(events.GenPart, had_fatjet)
+            variables = {**variables, **genVars}
+    
+        variables = {**variables, **lep_fatjetvars, **had_fatjetvars, **lepvars, **had_subjetvars}
 
         """
         HEM issue: Hadronic calorimeter Endcaps Minus (HEM) issue.
@@ -366,14 +368,16 @@ class TopProcessor(processor.ProcessorABC):
 
         # apply trigger
         for ch in self._channels:
-            self.add_selection(name="Trigger", sel=trigger[ch], channel=ch)
+            if not self.isMC:
+                self.add_selection(name="Trigger", sel=trigger[ch], channel=ch)
 
         # apply selections
         
         self.add_selection(name='had_fatjetPt > 450', sel=(had_fatjet.pt > 450)) #maybe raise to 450 GeV
         self.add_selection(name='105 < had_fatjetMass < 210', sel=(105 < had_fatjet.msdcorr)&(had_fatjet.msdcorr < 210))
         self.add_selection(name='had_fatjetTau32 < .52', sel=(had_fatjet.tau3/had_fatjet.tau2 < .52))
-        #### add dphi cut
+        self.add_selection(name='dPhi(had_fatjet, lep_fatjet) > 2', sel=(had_fatjet.delta_phi(lep_fatjet)) > 2.)
+        
         
         # self.add_selection(name='had_subjetBscore > 0.1355', sel=(had_subjet.btagDeepB > 0.1355))
         
@@ -495,7 +499,14 @@ class TopProcessor(processor.ProcessorABC):
             if not os.path.exists(self._output_location + ch + "/parquet"):
                 os.makedirs(self._output_location + ch + "/parquet")
             self.save_dfs_parquet(fname, output[ch], ch)
-
+        
+        # print()
+        # print()
+        # print(self.cutflows)
+        # print(output)
+        # print()
+        # print()
+        
         # return dictionary with cutflows
         return {
             dataset: {
