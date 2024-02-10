@@ -42,30 +42,30 @@ sel = {
 }
 
 input_feat = {
-    "v2-1111-10noMass1": [
-        "fj_pt",
-        "fj_msoftdrop",
-        "met_relpt",
-        # "met_fj_dphi",
-        "lep_fj_dr",
-        "n_bjets_L",
-        "n_bjets_M",
-        "n_bjets_T",
-        "lep_isolation",
-        "lep_misolation",
-    ],
-    "v2_1-12": [
-        "fj_pt",
-        "fj_msoftdrop",
-        "met_relpt",
-        # "met_fj_dphi",
-        "lep_fj_dr",
-        "n_bjets_L",
-        "n_bjets_M",
-        "n_bjets_T",
-        "lep_isolation",
-        "lep_misolation",
-    ],
+    # "v2-1111-10noMass1": [
+    #     "fj_pt",
+    #     "fj_msoftdrop",
+    #     "met_relpt",
+    #     # "met_fj_dphi",
+    #     "lep_fj_dr",
+    #     "n_bjets_L",
+    #     "n_bjets_M",
+    #     "n_bjets_T",
+    #     "lep_isolation",
+    #     "lep_misolation",
+    # ],
+    # "v2_1-12": [
+    #     "fj_pt",
+    #     "fj_msoftdrop",
+    #     "met_relpt",
+    #     # "met_fj_dphi",
+    #     "lep_fj_dr",
+    #     "n_bjets_L",
+    #     "n_bjets_M",
+    #     "n_bjets_T",
+    #     "lep_isolation",
+    #     "lep_misolation",
+    # ],
     # "v2_10_5": [],
     # "v2_10_12": [],
     # "v2_nor1": [],
@@ -148,7 +148,7 @@ def make_events_dict(
 
                 try:
                     # if region in sel:
-                    data = pd.read_parquet(parquet_files, filters=sel[region][ch])
+                    data = pd.read_parquet(parquet_files)
                     # else:
                     #     data = pd.read_parquet(parquet_files)
 
@@ -170,7 +170,7 @@ def make_events_dict(
                     data = data[data.columns.drop(list(data.filter(regex="_up")))]
                     data = data[data.columns.drop(list(data.filter(regex="_down")))]
 
-                data["abs_met_fj_dphi"] = np.abs(data["met_fj_dphi"])
+                # data["abs_met_fj_dphi"] = np.abs(data["met_fj_dphi"])
 
                 # get event_weight
                 if sample_to_use != "Data":
@@ -190,9 +190,9 @@ def make_events_dict(
                     import onnxruntime as ort
                     import scipy
 
-                    PATH = f"../../weaver-core-dev/experiments_finetuning/{modelv}/model.onnx"
+                    PATH = f"model.onnx"
 
-                    data["met_relpt"] = data["met_pt"] / data["fj_pt"]
+                    # data["met_relpt"] = data["met_pt"] / data["fj_pt"]
 
                     if modelv in ["v2-1111-10noMass1", "v2_1-12"]:
                         input_dict = {

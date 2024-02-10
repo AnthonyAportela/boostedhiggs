@@ -52,7 +52,7 @@ def build_p4(cand):
             "eta": cand.eta,
             "phi": cand.phi,
             "mass": cand.mass,
-            "charge": cand.charge,
+            # "charge": cand.charge,
         },
         with_name="PtEtaPhiMCandidate",
         behavior=candidate.behavior,
@@ -298,6 +298,7 @@ class TopProcessor(processor.ProcessorABC):
         variables = {
             'METpt': events.MET.pt,
             'METphi': events.MET.phi,
+            'dR(lep, lep_fatjet)': build_p4(candidatelep).delta_r(build_p4(lep_fatjet)),
         }
 
         lep_fatjetvars = {
@@ -336,6 +337,12 @@ class TopProcessor(processor.ProcessorABC):
     
         variables = {**variables, **lep_fatjetvars, **had_fatjetvars, **lepvars, **had_subjetvars}
 
+        if self.isMC:
+            weights = {}
+            for ch in self._channels:
+                weights[f"weight_{ch}"] = events.genWeight
+            variables = {**variables, **weights}
+        
         """
         HEM issue: Hadronic calorimeter Endcaps Minus (HEM) issue.
         The endcaps of the hadron calorimeter failed to cover the phase space at -3 < eta < -1.3 and -1.57 < phi < -0.87
@@ -413,12 +420,17 @@ class TopProcessor(processor.ProcessorABC):
 
             fill_output = True
             # for data, only fill output for the dataset needed
-            if not self.isMC and self.dataset_per_ch[ch] not in dataset:
-                fill_output = False
-            # only fill output for that channel if the selections yield any events
-            if np.sum(selection_ch) <= 0:
-                fill_output = False
+            # if not self.isMC and self.dataset_per_ch[ch] not in dataset:
+            # if not self.isMC:                
+            #     fill_output = False
+            # # only fill output for that channel if the selections yield any events
+            # if np.sum(selection_ch) <= 0:
+            #     fill_output = False
 
+            # print()
+            # print(fill_output)
+            # print()
+            
             if fill_output:
                 out = {}
                 for var, item in variables.items():
@@ -481,7 +493,14 @@ class TopProcessor(processor.ProcessorABC):
 
             else:
                 output[ch] = {}
-
+            
+            # print()
+            # print()
+            # # print(self.cutflows)
+            # print(output)
+            # print()
+            # print()
+            
             # convert arrays to pandas
             if not isinstance(output[ch], pd.DataFrame):
                 output[ch] = self.ak_to_pandas(output[ch])
