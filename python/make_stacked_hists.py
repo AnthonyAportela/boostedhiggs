@@ -180,7 +180,7 @@ def make_events_dict(
                     event_weight *= data[f"weight_{ch}"]
 
                 else:
-                    event_weight = np.ones_like(data["fj_pt"])
+                    event_weight = np.ones_like(data["had_fatjetPt"])
 
                 data["event_weight"] = event_weight
 

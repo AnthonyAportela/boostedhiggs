@@ -23,6 +23,7 @@ combine_samples = {
     "SingleElectron_": "Data",
     "SingleMuon_": "Data",
     "EGamma_": "Data",
+    "JetHT": "Data",
     # signal
     "GluGluHToWW_Pt-200ToInf_M-125": "ggF",
     "HToWW_M-125": "VH",
